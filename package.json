@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "frontend": "npm run serve --prefix client",
+    "backend": "npm run dev --prefix server",
+    "dev": "concurrently \"npm run backend\"  \"npm run frontend\""
   },
   "repository": {
     "type": "git",
@@ -15,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/miraenoh/interactive-voice-kiosk/issues"
   },
-  "homepage": "https://github.com/miraenoh/interactive-voice-kiosk#readme"
+  "homepage": "https://github.com/miraenoh/interactive-voice-kiosk#readme",
+  "dependencies": {
+    "concurrently": "^5.3.0"
+  }
 }
