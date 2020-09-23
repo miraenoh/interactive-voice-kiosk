@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css');
+
+:root {
+	--my-lightgray: #f1f1f1;
+}
+
+body {
+    font-family: 'Noto Sans KR';
+}
+
+.center {
+	text-align: center;
+}
+
+.right {
+    text-align: end;
+}
+
+.bottomRight {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	margin: 2rem;
+}
+
+.vs-table table {
+	min-width: 100px;
+}
+
+.vs-table__th,
+.vs-table__td {
+	font-size: 1rem;
+}
