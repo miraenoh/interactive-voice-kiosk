@@ -4,7 +4,6 @@ const router = express.Router()
 const { Menu } = require('../models/Menu')
 const { MenuGroup } = require('../models/MenuGroup')
 const handlerService = require('../services/handlerService')
-const { route } = require('./user')
 
 // Post a menu
 router.post('/', (req, res) => {
