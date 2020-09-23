@@ -8,6 +8,7 @@ module.exports = {
 		VOICE_PITCH: 2
 	},
 	GC_STORAGE: {
+		BUCKET_NAME_BOT: 'voice-bot',
 		BUCKET_NAME_USER: 'voice-user'
 	},
 	SCRIPT: {
