@@ -20,7 +20,13 @@ const userSchema = mongoose.Schema({
 	storeName: {
 		type: String,
 		trim: true,
-		maxlength: 50
+		maxlength: 50,
+		required: true
+	},
+	lastOrderNo: {
+		type: Number,
+		required: true,
+		default: 0
 	},
 	token: String,
 	tokenExp: Number
