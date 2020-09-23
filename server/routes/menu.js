@@ -3,6 +3,8 @@ const router = express.Router()
 
 const { Menu } = require('../models/Menu')
 const { MenuGroup } = require('../models/MenuGroup')
+const handlerService = require('../services/handlerService')
+const { route } = require('./user')
 
 // Post a menu
 router.post('/', (req, res) => {
@@ -10,12 +12,7 @@ router.post('/', (req, res) => {
 
 	// Save info into mongodb
 	menu.save((err, menu) => {
-		if (err) {
-			return res.json({ success: false, err })
-		}
-		return res.status(200).json({
-			success: true
-		})
+		return handlerService.responseHandler(res, err, menu)
 	})
 })
 
@@ -25,13 +22,22 @@ router.post('/group', (req, res) => {
 
 	// Save info into mongodb
 	group.save((err, group) => {
-		if (err) {
-			return res.json({ success: false, err })
-		}
-		return res.status(200).json({
-			success: true
-		})
+		return handlerService.responseHandler(res, err, group)
 	})
+})
+
+// Get menu groups corresponding to the userId
+router.get('/group/by-user', (req, res) => {
+    MenuGroup.find({userId: req.query.userId}, (err, groups) => {
+        return handlerService.responseDataHandler(res, err, groups)
+    })
+})
+
+// Get menus corresponding to the userId
+router.get('/by-user', (req, res) => {
+    Menu.find({userId: req.query.userId}, (err, menus) => {
+        return handlerService.responseDataHandler(res, err, menus)
+    })
 })
 
 module.exports = router

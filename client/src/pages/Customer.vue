@@ -1,14 +1,14 @@
 <template>
 	<div class="grid">
 		<vs-row justify="center">
-			<vs-col xl="3" lg="6" sm="9" xs="11">
+			<vs-col lg="6" sm="9" xs="11">
 				<h1 class="center">
-					{{ id }}
+					{{ user.storeName }}
 				</h1>
 				<vs-row>
 					<vs-col w="12">
 						<div class="container">
-							<vs-table>
+							<vs-table v-if="user">
 								<template #thead>
 									<vs-tr>
 										<vs-th>
@@ -32,6 +32,7 @@
 									</vs-tr>
 								</template>
 							</vs-table>
+							<p v-else>존재하지 않는 가게입니다.</p>
 						</div>
 						<div class="bottom-intent"></div>
 					</vs-col>
@@ -47,6 +48,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 const dummyMenus = [
 	{ id: 1, name: '아메리카노', price: 3000, groupId: 1 },
 	{ id: 2, name: '카페라떼', price: 4000, groupId: 1 },
@@ -77,23 +79,38 @@ export default {
 	components: {},
 	data: function() {
 		return {
+			user: {},
+			menus: [],
+			menuGroups: [],
 			menuViews: []
 		}
 	},
 	props: ['id'],
-	created() {
-		console.log(dummyMenus[0])
+	async mounted() {
+		const loading = this.$vs.loading()
 
-		this.createMenuView(dummyMenus, dummyGroups)
+		// Check if the user exists
+		let res = await axios.get('/api/user', { params: { id: this.id } })
+		this.user = res.data
+
+		// Get all menus and menuGroups by userId
+		res = await axios.get('/api/menu/by-user', { params: { userId: this.id } })
+		this.menus = res.data
+		res = await axios.get('/api/menu/group/by-user', { params: { userId: this.id } })
+		this.menuGroups = res.data
+
+		this.createMenuView()
+
+		loading.close()
 	},
 	methods: {
-		createMenuView(menus, groups) {
+		createMenuView() {
 			let group, menu
-			for (group of groups) {
+			for (group of this.menuGroups) {
 				group.class = 'my-header'
 				this.menuViews.push(group)
-				for (menu of menus) {
-					if (menu.groupId === group.id) {
+				for (menu of this.menus) {
+					if (menu.groupId === group._id) {
 						this.menuViews.push(menu)
 					}
 				}
