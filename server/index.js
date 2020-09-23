@@ -29,6 +29,7 @@ mongoose
 	})
 
 app.use('/api/user', require('./routes/user'))
+app.use('/api/menu', require('./routes/menu'))
 
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`)
