@@ -3,6 +3,7 @@ const router = express.Router()
 
 const { User } = require('../models/User')
 const { auth } = require('../middleware/auth')
+const handlerService = require('../services/handlerService')
 
 router.get('/hello', (req, res) => {
 	res.send('Hello Frontend!')
@@ -15,12 +16,7 @@ router.post('/register', (req, res) => {
 
 	// Save info into mongodb
 	user.save((err, user) => {
-		if (err) {
-			return res.json({ success: false, err })
-		}
-		return res.status(200).json({
-			success: true
-		})
+		return handlerService.responseHandler(res, err, user)
 	})
 })
 
@@ -71,9 +67,14 @@ router.get('/auth', auth, (req, res) => {
 
 router.get('/logout', auth, (req, res) => {
 	req.user.removeToken((err, result) => {
-		if (err) return res.status(400).send(err)
+		return handlerService.responseDataHandler(res, err, result)
+	})
+})
 
-		return res.status(200).send(result)
+// Get userInfo by username
+router.get('/', (req, res) => {
+	User.findOne({name: req.query.id}, {_id: 0, name: 1, storeName: 1}, (err, user) => {
+		return handlerService.responseDataHandler(res, err, user)
 	})
 })
 
