@@ -25,6 +25,10 @@ body {
 	margin: 2rem;
 }
 
+.floatRight {
+	float: right;
+}
+
 .vs-table table {
 	min-width: 100px;
 }

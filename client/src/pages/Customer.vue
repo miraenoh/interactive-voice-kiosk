@@ -1,5 +1,6 @@
 <template>
 	<div class="grid">
+		<audio ref="audio" @ended="handleAfterAudio"></audio>
 		<vs-row justify="center">
 			<vs-col lg="6" sm="9" xs="11">
 				<h1 class="center">
@@ -39,8 +40,23 @@
 				</vs-row>
 			</vs-col>
 		</vs-row>
-		<div>
-			<vs-avatar class="bottomRight" circle primary size="120">
+		<my-receipt v-if="dialog" :dialog="dialog" :conversation="dialogData" />
+		<div class="bottomRight">
+			<my-recorder
+				@recordDone="proceedConversation"
+				v-if="conversation.isRecording"
+				:fileName="conversation.id"
+			/>
+			<vs-avatar
+				@click="handleClick"
+				circle
+				:primary="!conversation.isRecording"
+				:color="conversation.isRecording ? '#dddddd' : null"
+				size="110"
+				:loading="conversation.isWaiting"
+				:badge="conversation.isWriting"
+				:writing="conversation.isWriting"
+			>
 				<i class="bx bxs-bot"></i>
 			</vs-avatar>
 		</div>
@@ -49,43 +65,36 @@
 
 <script>
 import axios from 'axios'
-const dummyMenus = [
-	{ id: 1, name: '아메리카노', price: 3000, groupId: 1 },
-	{ id: 2, name: '카페라떼', price: 4000, groupId: 1 },
-	{ id: 3, name: '카페모카', price: 4000, groupId: 1 },
-	{ id: 4, name: '카라멜 마끼아또', price: 4000, groupId: 1 },
-	{ id: 5, name: '아이스 바닐라 라떼', price: 5000, groupId: 1 },
-	{ id: 6, name: '티라미수', price: 5500, groupId: 3 },
-	{ id: 7, name: '치즈 케이크', price: 5500, groupId: 3 },
-	{ id: 8, name: '초코 케이크', price: 5500, groupId: 3 },
-	{ id: 9, name: '브라우니', price: 5500, groupId: 3 },
-	{ id: 10, name: '그린티', price: 3000, groupId: 2 },
-	{ id: 11, name: '블랙티', price: 3000, groupId: 2 },
-	{ id: 12, name: '자몽 허니 블랙티', price: 3000, groupId: 2 },
-	{ id: 13, name: '레몬 녹차', price: 3000, groupId: 2 },
-	{ id: 14, name: '복숭아 아이스티', price: 3000, groupId: 2 },
-	{ id: 15, name: '레몬 아이스티', price: 3000, groupId: 2 },
-	{ id: 16, name: '바리스타 티', price: 3000, groupId: 2 },
-	{ id: 17, name: '캐모마일', price: 3000, groupId: 2 },
-	{ id: 18, name: '페퍼민트', price: 3000, groupId: 2 },
-	{ id: 19, name: '자스민티', price: 3000, groupId: 2 }
-]
-const dummyGroups = [
-	{ id: 1, name: '커피' },
-	{ id: 2, name: '음료' },
-	{ id: 3, name: '디저트' }
-]
+
+import Recorder from '../components/Recorder'
+import Receipt from '../components/Receipt'
+
+const gcsUrl = 'https://storage.googleapis.com/voice-bot/'
+
 export default {
-	components: {},
+	components: {
+		myRecorder: Recorder,
+		myReceipt: Receipt
+	},
+	props: ['id'],
 	data: function() {
 		return {
 			user: {},
 			menus: [],
 			menuGroups: [],
-			menuViews: []
+			menuViews: [],
+			conversation: {
+				id: null,
+				success: false,
+				hasFinished: false,
+				isWriting: false,
+				isWaiting: false,
+				isRecording: false
+			},
+			dialog: false,
+			dialogData: {}
 		}
 	},
-	props: ['id'],
 	async mounted() {
 		const loading = this.$vs.loading()
 
@@ -115,7 +124,101 @@ export default {
 					}
 				}
 			}
-		}
+		},
+		async handleClick() {
+			if (!this.conversation.id) {
+				this.startConversation()
+			}
+		},
+		async startConversation() {
+			// Start a conversation with the bot
+			this.conversation.isWaiting = true
+			console.log('Start conversation')
+			// Send the start request to the server
+			const res = await axios.get('/api/conversation/start', { params: { userId: this.id } })
+			this.conversation.id = res.data.id
+			this.updateConvData(res.data)
+
+			this.conversation.isWaiting = false
+
+			// Play the bot's voice from the response
+			this.conversation.isWriting = true
+			this.$refs['audio'].src = gcsUrl + this.user.storeName + '.wav'
+			this.$refs['audio'].play()
+		},
+		// Handle the conversation after playing the bot's voice
+		handleAfterAudio() {
+			this.conversation.isWriting = false
+
+			if (this.conversation.hasFinished) {
+				// Conversation finished
+				this.handleAfterFinish()
+
+				// this.resetConversation()
+			} else {
+				// Conversation not finished
+				// Record the user's voice
+				this.conversation.isRecording = true
+			}
+		},
+		// Proceed the conversation after recording
+		async proceedConversation() {
+			this.conversation.isRecording = false
+			this.conversation.isWaiting = true
+
+			// Send the proceed request to the server
+			const res = await axios.post('/api/conversation/proceed', { convId: this.conversation.id })
+			console.log('got response')
+			console.log(res.data)
+			this.conversation.success = res.data.success
+			this.conversation.hasFinished = res.data.hasFinished
+
+			// Check if the conversation has finished
+			if (this.conversation.hasFinished == true) {
+				// Conversation Finished
+				// Show the order info with notification
+				console.log('FINISHED')
+				this.conversation.order = res.data.order
+				console.log(this.conversation.order)
+			}
+			this.conversation.isWaiting = false
+
+			// Play the bot voice from the response
+			this.conversation.isWriting = true
+			this.$refs['audio'].src = gcsUrl + this.conversation.id + '.wav'
+			this.$refs['audio'].play()
+		},
+		handleAfterFinish() {
+			// Open notification
+			this.dialogData = this.conversation
+			this.dialog = true
+
+			this.resetConversation()
+		},
+		createReceiptScript() {
+			const content = {}
+			content.title = '주문번호 ' + this.conversation.order.orderNo.toString()
+
+			content.text = `<tr><td>hello</td><td>mirae</td></tr>`
+
+			return content
+		},
+		async updateConvData(data) {
+			this.conversation.success = data.success
+			this.conversation.hasFinished = data.hasFinished
+			if (data.order) this.conversation.order = data.order
+		},
+		resetConversation() {
+			this.conversation = {
+				id: null,
+				success: false,
+				hasFinished: false,
+				isWriting: false,
+				isWaiting: false,
+				isRecording: false
+			}
+		},
+		playAudio() {}
 	}
 }
 </script>
@@ -128,16 +231,20 @@ body {
 	border-radius: 1rem;
 	padding: 1rem;
 }
-h1 {
+h1,
+h2 {
 	font-family: 'Jua';
 	font-weight: normal;
+}
+h1 {
 	font-size: 3rem;
 }
 .vs-avatar {
 	cursor: pointer;
+	margin-top: 0.5rem;
 }
 .vs-avatar i {
-	font-size: 3.5rem !important;
+	font-size: 4rem !important;
 }
 .my-header {
 	background-color: rgba(var(--vs-gray-2), 1);
