@@ -49,32 +49,7 @@
 
 <script>
 import axios from 'axios'
-const dummyMenus = [
-	{ id: 1, name: '아메리카노', price: 3000, groupId: 1 },
-	{ id: 2, name: '카페라떼', price: 4000, groupId: 1 },
-	{ id: 3, name: '카페모카', price: 4000, groupId: 1 },
-	{ id: 4, name: '카라멜 마끼아또', price: 4000, groupId: 1 },
-	{ id: 5, name: '아이스 바닐라 라떼', price: 5000, groupId: 1 },
-	{ id: 6, name: '티라미수', price: 5500, groupId: 3 },
-	{ id: 7, name: '치즈 케이크', price: 5500, groupId: 3 },
-	{ id: 8, name: '초코 케이크', price: 5500, groupId: 3 },
-	{ id: 9, name: '브라우니', price: 5500, groupId: 3 },
-	{ id: 10, name: '그린티', price: 3000, groupId: 2 },
-	{ id: 11, name: '블랙티', price: 3000, groupId: 2 },
-	{ id: 12, name: '자몽 허니 블랙티', price: 3000, groupId: 2 },
-	{ id: 13, name: '레몬 녹차', price: 3000, groupId: 2 },
-	{ id: 14, name: '복숭아 아이스티', price: 3000, groupId: 2 },
-	{ id: 15, name: '레몬 아이스티', price: 3000, groupId: 2 },
-	{ id: 16, name: '바리스타 티', price: 3000, groupId: 2 },
-	{ id: 17, name: '캐모마일', price: 3000, groupId: 2 },
-	{ id: 18, name: '페퍼민트', price: 3000, groupId: 2 },
-	{ id: 19, name: '자스민티', price: 3000, groupId: 2 }
-]
-const dummyGroups = [
-	{ id: 1, name: '커피' },
-	{ id: 2, name: '음료' },
-	{ id: 3, name: '디저트' }
-]
+
 export default {
 	components: {},
 	data: function() {
