@@ -1,5 +1,6 @@
 <template>
 	<div class="grid">
+		<audio ref="audio" @ended="handleAfterAudio"></audio>
 		<vs-row justify="center">
 			<vs-col lg="6" sm="9" xs="11">
 				<h1 class="center">
@@ -39,8 +40,23 @@
 				</vs-row>
 			</vs-col>
 		</vs-row>
-		<div>
-			<vs-avatar class="bottomRight" circle primary size="120">
+		<my-receipt v-if="dialog" :dialog="dialog" :conversation="dialogData" />
+		<div class="bottomRight">
+			<my-recorder
+				@recordDone="proceedConversation"
+				v-if="conversation.isRecording"
+				:fileName="conversation.id"
+			/>
+			<vs-avatar
+				@click="handleClick"
+				circle
+				:primary="!conversation.isRecording"
+				:color="conversation.isRecording ? '#dddddd' : null"
+				size="110"
+				:loading="conversation.isWaiting"
+				:badge="conversation.isWriting"
+				:writing="conversation.isWriting"
+			>
 				<i class="bx bxs-bot"></i>
 			</vs-avatar>
 		</div>
@@ -50,17 +66,35 @@
 <script>
 import axios from 'axios'
 
+import Recorder from '../components/Recorder'
+import Receipt from '../components/Receipt'
+
+const gcsUrl = 'https://storage.googleapis.com/voice-bot/'
+
 export default {
-	components: {},
+	components: {
+		myRecorder: Recorder,
+		myReceipt: Receipt
+	},
+	props: ['id'],
 	data: function() {
 		return {
 			user: {},
 			menus: [],
 			menuGroups: [],
-			menuViews: []
+			menuViews: [],
+			conversation: {
+				id: null,
+				success: false,
+				hasFinished: false,
+				isWriting: false,
+				isWaiting: false,
+				isRecording: false
+			},
+			dialog: false,
+			dialogData: {}
 		}
 	},
-	props: ['id'],
 	async mounted() {
 		const loading = this.$vs.loading()
 
@@ -90,7 +124,101 @@ export default {
 					}
 				}
 			}
-		}
+		},
+		async handleClick() {
+			if (!this.conversation.id) {
+				this.startConversation()
+			}
+		},
+		async startConversation() {
+			// Start a conversation with the bot
+			this.conversation.isWaiting = true
+			console.log('Start conversation')
+			// Send the start request to the server
+			const res = await axios.get('/api/conversation/start', { params: { userId: this.id } })
+			this.conversation.id = res.data.id
+			this.updateConvData(res.data)
+
+			this.conversation.isWaiting = false
+
+			// Play the bot's voice from the response
+			this.conversation.isWriting = true
+			this.$refs['audio'].src = gcsUrl + this.user.storeName + '.wav'
+			this.$refs['audio'].play()
+		},
+		// Handle the conversation after playing the bot's voice
+		handleAfterAudio() {
+			this.conversation.isWriting = false
+
+			if (this.conversation.hasFinished) {
+				// Conversation finished
+				this.handleAfterFinish()
+
+				// this.resetConversation()
+			} else {
+				// Conversation not finished
+				// Record the user's voice
+				this.conversation.isRecording = true
+			}
+		},
+		// Proceed the conversation after recording
+		async proceedConversation() {
+			this.conversation.isRecording = false
+			this.conversation.isWaiting = true
+
+			// Send the proceed request to the server
+			const res = await axios.post('/api/conversation/proceed', { convId: this.conversation.id })
+			console.log('got response')
+			console.log(res.data)
+			this.conversation.success = res.data.success
+			this.conversation.hasFinished = res.data.hasFinished
+
+			// Check if the conversation has finished
+			if (this.conversation.hasFinished == true) {
+				// Conversation Finished
+				// Show the order info with notification
+				console.log('FINISHED')
+				this.conversation.order = res.data.order
+				console.log(this.conversation.order)
+			}
+			this.conversation.isWaiting = false
+
+			// Play the bot voice from the response
+			this.conversation.isWriting = true
+			this.$refs['audio'].src = gcsUrl + this.conversation.id + '.wav'
+			this.$refs['audio'].play()
+		},
+		handleAfterFinish() {
+			// Open notification
+			this.dialogData = this.conversation
+			this.dialog = true
+
+			this.resetConversation()
+		},
+		createReceiptScript() {
+			const content = {}
+			content.title = '주문번호 ' + this.conversation.order.orderNo.toString()
+
+			content.text = `<tr><td>hello</td><td>mirae</td></tr>`
+
+			return content
+		},
+		async updateConvData(data) {
+			this.conversation.success = data.success
+			this.conversation.hasFinished = data.hasFinished
+			if (data.order) this.conversation.order = data.order
+		},
+		resetConversation() {
+			this.conversation = {
+				id: null,
+				success: false,
+				hasFinished: false,
+				isWriting: false,
+				isWaiting: false,
+				isRecording: false
+			}
+		},
+		playAudio() {}
 	}
 }
 </script>
@@ -103,16 +231,20 @@ body {
 	border-radius: 1rem;
 	padding: 1rem;
 }
-h1 {
+h1,
+h2 {
 	font-family: 'Jua';
 	font-weight: normal;
+}
+h1 {
 	font-size: 3rem;
 }
 .vs-avatar {
 	cursor: pointer;
+	margin-top: 0.5rem;
 }
 .vs-avatar i {
-	font-size: 3.5rem !important;
+	font-size: 4rem !important;
 }
 .my-header {
 	background-color: rgba(var(--vs-gray-2), 1);

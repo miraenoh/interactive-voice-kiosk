@@ -17,7 +17,6 @@ module.exports = {
 	STT: {
 		CONFIG: {
 			encoding: AUDIO_ENCODING,
-			sampleRateHertz: 16000,
 			languageCode: LANG_CODE,
 			enableAutomaticPunctuation: true
 		},
@@ -25,7 +24,9 @@ module.exports = {
 	},
 	GC_STORAGE: {
 		BUCKET_NAME_BOT: 'voice-bot',
-		BUCKET_NAME_USER: 'voice-user'
+		BUCKET_NAME_USER: 'voice-user',
+		LOCAL_PATH: './temp/',
+		FILE_FORMAT: '.wav'
 	},
 	SCRIPT: {
 		HELLO: '안녕하세요',

@@ -2,8 +2,6 @@ const fs = require('fs')
 const util = require('util')
 
 // Setting for GC client library use
-const { Storage } = require('@google-cloud/storage')
-const storage = new Storage()
 const textToSpeech = require('@google-cloud/text-to-speech')
 const ttsClient = new textToSpeech.TextToSpeechClient()
 const speech = require('@google-cloud/speech')
@@ -13,6 +11,8 @@ const { Conversation } = require('../models/Conversation')
 const { Order } = require('../models/Order')
 const { Menu } = require('../models/Menu')
 const { User } = require('../models/User')
+
+const gcStorageService = require('./gcStorageService')
 
 const GC_STORAGE = require('../constants').GC_STORAGE
 const TTS = require('../constants').TTS
@@ -25,12 +25,27 @@ const start = async (conversation) => {
 	// Make a script
 	// Get storeName
 	const user = await User.findOne({ name: conversation.userId }).exec()
-	const script = SCRIPT.HELLO + ', ' + user.storeName + '입니다. 말로 주문해주세요.'
 
-	// Make start audio from API
-	await makeVoice(conversation.id, script)
+	// Check if the info voice already exists
+	const storeName = user.storeName
+	const exists = await gcStorageService.fileExists(
+		GC_STORAGE.BUCKET_NAME_BOT,
+		storeName + GC_STORAGE.FILE_FORMAT
+	)
+	if (exists) {
+		console.log('exists')
+		// Info file already exists
+		// Skip making the voice
+		return true
+	} else {
+		// Info file not exists
+		// Make the voice
+		console.log('not exists')
+		const script = SCRIPT.HELLO + ', ' + storeName + '입니다. 말로 주문해주세요.'
+		await makeVoice(user.storeName, script)
 
-	return true
+		return true
+	}
 }
 
 // Recognize the user's voice and process the result
@@ -40,9 +55,8 @@ const processOrder = async (conversation, cb) => {
 	let result = { id: convId, success: true, hasFinished: false }
 
 	// Recognize the user's voice
-	/* 	const transcript = await recognizeVoice(conversation._id)
-	console.log(transcript) */
-	const transcript = '아메리카노 하나랑 카페라떼 하나요.'
+	const transcript = await recognizeVoice(conversation._id)
+	console.log(transcript)
 
 	// Check if suceeded to recognize
 	if (!transcript || !transcript.length) {
@@ -145,7 +159,14 @@ const recognizeVoice = async (fileName, text) => {
 	// Recognize the user's voice with GC Speech-to-Text API
 	// Construct the request
 	const config = STT.CONFIG
-	const audio = { uri: STT.GCS_URI + fileName + '.raw' }
+
+	// const content = await readAudio('./temp/5f6c40d8a57f40730ce8da7f.wav')
+	const content = await readAudio(GC_STORAGE.LOCAL_PATH + fileName + GC_STORAGE.FILE_FORMAT)
+	const audio = {
+		content: content
+	}
+
+	// const audio = { uri: STT.GCS_URI + fileName + '.wav' }
 	const request = { config: config, audio: audio }
 
 	// Detect the transcription with GC STT and process the response
@@ -155,6 +176,13 @@ const recognizeVoice = async (fileName, text) => {
 		.join('\n')
 
 	return transcription
+}
+
+const readAudio = async (filePath) => {
+	const readFile = util.promisify(fs.readFile)
+	const content = (await readFile(filePath)).toString('base64')
+
+	return content
 }
 
 // Synthesize voice with the given text
@@ -171,16 +199,12 @@ const makeVoice = async (fileName, text) => {
 
 	// Write the audio content to GC cloud
 	// First save the audio to a local file
-	const filePath = './temp/' + fileName + '.wav'
+	const filePath = GC_STORAGE.LOCAL_PATH + fileName + GC_STORAGE.FILE_FORMAT
 	const writeFile = util.promisify(fs.writeFile)
 	await writeFile(filePath, response.audioContent, 'binary')
 	// Upload the file to GC cloud
-	await storage.bucket(GC_STORAGE.BUCKET_NAME_BOT).upload(filePath, {
-		gzip: true,
-		metadata: {
-			cacheControl: 'no-cache'
-		}
-	})
+	await gcStorageService.uploadFile(GC_STORAGE.BUCKET_NAME_BOT, filePath)
+
 	// Delete the local file
 	const unlink = util.promisify(fs.unlink)
 	await unlink(filePath)

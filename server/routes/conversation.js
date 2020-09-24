@@ -31,12 +31,12 @@ router.post('/proceed', (req, res) => {
                 // The conversation started
 				// Get user's orer and make the order info
                 conversationService.processOrder(conversation, (result) => {
-                    return res.status(400).send(result)
+                    return res.status(200).send(result)
                 })
 				break
 			default:
 				return res
-					.status(200)
+					.status(400)
 					.json({ id: conversation._id, success: false, message: 'Invalid conversation status.' })
 		}
 	})
