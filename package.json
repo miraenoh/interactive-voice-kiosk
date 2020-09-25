@@ -6,6 +6,7 @@
   "scripts": {
     "frontend": "npm run serve --prefix client",
     "backend": "npm run dev --prefix server",
+    "backend-prod" : "npm start --prefix server",
     "dev": "concurrently \"npm run backend\"  \"npm run frontend\""
   },
   "repository": {
