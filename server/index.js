@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const port = process.env.PORT || 5000
 
+const cors = require('cors')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
@@ -27,6 +28,9 @@ mongoose
 	.catch((err) => {
 		console.log(err)
 	})
+
+// Enalbe CORS
+app.use(cors())
 
 // Configure routers
 app.use('/api/user', require('./routes/user'))
