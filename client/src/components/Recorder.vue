@@ -14,6 +14,8 @@ import axios from 'axios'
 
 import Recorder from '../utils/vue-audio-recorder/recorder'
 
+const endpoint = process.env.VUE_APP_API_ENDPOINT
+
 export default {
 	props: {
 		fileName: { type: String, defulat: 'sample' }
@@ -70,7 +72,7 @@ export default {
 			const fileName = this.fileName + '.wav'
 			formData.append('audio-file', file, fileName)
 
-			const res = await axios.post('/api/file/upload', formData, {
+			const res = await axios.post(endpoint + '/api/file/upload', formData, {
 				headers: { filename: this.fileName }
 			})
 

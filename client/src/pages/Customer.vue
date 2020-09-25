@@ -70,6 +70,7 @@ import Recorder from '../components/Recorder'
 import Receipt from '../components/Receipt'
 
 const gcsUrl = 'https://storage.googleapis.com/voice-bot/'
+const endpoint = process.env.VUE_APP_API_ENDPOINT
 
 export default {
 	components: {
@@ -99,13 +100,13 @@ export default {
 		const loading = this.$vs.loading()
 
 		// Check if the user exists
-		let res = await axios.get('/api/user', { params: { id: this.id } })
+		let res = await axios.get(endpoint + '/api/user', { params: { id: this.id } })
 		this.user = res.data
 
 		// Get all menus and menuGroups by userId
-		res = await axios.get('/api/menu/by-user', { params: { userId: this.id } })
+		res = await axios.get(endpoint + '/api/menu/by-user', { params: { userId: this.id } })
 		this.menus = res.data
-		res = await axios.get('/api/menu/group/by-user', { params: { userId: this.id } })
+		res = await axios.get(endpoint + '/api/menu/group/by-user', { params: { userId: this.id } })
 		this.menuGroups = res.data
 
 		this.createMenuView()
@@ -135,7 +136,7 @@ export default {
 			this.conversation.isWaiting = true
 			console.log('Start conversation')
 			// Send the start request to the server
-			const res = await axios.get('/api/conversation/start', { params: { userId: this.id } })
+			const res = await axios.get(endpoint + '/api/conversation/start', { params: { userId: this.id } })
 			this.conversation.id = res.data.id
 			this.updateConvData(res.data)
 
@@ -167,7 +168,7 @@ export default {
 			this.conversation.isWaiting = true
 
 			// Send the proceed request to the server
-			const res = await axios.post('/api/conversation/proceed', { convId: this.conversation.id })
+			const res = await axios.post(endpoint + '/api/conversation/proceed', { convId: this.conversation.id })
 			console.log('got response')
 			console.log(res.data)
 			this.conversation.success = res.data.success
