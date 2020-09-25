@@ -12,6 +12,8 @@ import './style.css'
 
 Vue.config.productionTip = false
 
+console.log(process.env.VUE_APP_SERVER_DOMAIN)
+
 new Vue({
 	router,
 	render: (h) => h(App)
