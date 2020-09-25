@@ -7,7 +7,7 @@ export default {
 	name: 'Home',
 	components: {},
 	created() {
-		this.$router.push('customer')
+		this.$router.push('customer/kingocafe')
 	}
 }
 </script>
