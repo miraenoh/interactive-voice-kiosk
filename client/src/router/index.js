@@ -20,7 +20,7 @@ const routes = [
     props: true
   },
   {
-    path: '/admin/accounts/login',
+    path: '/admin/login',
     name: 'Login',
     component: AdminLogin
   }
