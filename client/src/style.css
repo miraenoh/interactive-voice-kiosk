@@ -12,12 +12,18 @@ body {
 	background: rgba(var(--vs-gray-2), 1);
 }
 
+h1,
+h2 {
+	font-family: 'Jua';
+	font-weight: normal;
+}
+
 .center {
 	text-align: center;
 }
 
 .right {
-    text-align: end;
+	text-align: end;
 }
 
 .bottomRight {

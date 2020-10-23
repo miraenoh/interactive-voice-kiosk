@@ -225,11 +225,6 @@ export default {
 }
 </script>
 <style scoped>
-h1,
-h2 {
-	font-family: 'Jua';
-	font-weight: normal;
-}
 h1 {
 	font-size: 3rem;
 }
