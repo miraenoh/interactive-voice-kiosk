@@ -13,8 +13,8 @@ router.get('/hello', (req, res) => {
 router.post('/register', (req, res) => {
 	// Check if the requested info is valid
 	const userInfo = req.body
-	if (userInfo.name.length < 5) {
-		return res.json({ success: false, message: '아이디는 5자 이상이어야 합니다.' })
+	if (userInfo.name.length < 4) {
+		return res.json({ success: false, message: '아이디는 4자 이상이어야 합니다.' })
 	}
 	if (userInfo.password.length < 5) {
 		return res.json({ success: false, message: '비밀번호는 5자 이상이어야 합니다.' })
