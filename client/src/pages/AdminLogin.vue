@@ -5,12 +5,12 @@
 		<div class="grid">
 			<vs-row justify="center">
 				<vs-col w="4" sm="8" xs="11" class="container login-form-container">
-					<vs-input v-model="username" placeholder="아이디">
+					<vs-input @keyup.enter="login" v-model="username" placeholder="아이디">
 						<template #icon>
 							<i class="bx bx-user" />
 						</template>
 					</vs-input>
-					<vs-input type="password" v-model="password" placeholder="비밀번호">
+					<vs-input @keyup.enter="login" type="password" v-model="password" placeholder="비밀번호">
 						<template #icon>
 							<i class="bx bx-lock" />
 						</template>
@@ -57,7 +57,7 @@ export default {
 						// 로그인 성공
 						$cookies.set('x_auth', res.data.x_auth)
 						alert('로그인 성공')
-						this.$router.replace({name: 'Admin'})
+						this.$router.replace({ name: 'Admin' })
 					} else {
 						// 로그인 실패
 						alert(res.data.message)
