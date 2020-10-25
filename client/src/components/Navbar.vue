@@ -1,7 +1,13 @@
 <template>
 	<vs-navbar center-collapsed>
 		<template #left>
-			<img @click="goToMain" class="my-logo" src="@/assets/app_title.png" alt="" />
+			<img
+				@click="goToMain"
+				class="my-logo"
+				src="@/assets/app_title.png"
+				alt=""
+				style="cursor: pointer;"
+			/>
 		</template>
 		<template #right>
 			<vs-button flat @click="logout">Logout</vs-button>
@@ -46,6 +52,6 @@ export default {
 <style scoped>
 .my-logo {
 	height: 2rem;
-	padding: 0.5rem;
+	margin: 0.5rem;
 }
 </style>
