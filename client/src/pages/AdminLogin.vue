@@ -19,13 +19,13 @@
 						로그인
 					</vs-button>
 					<vs-row class="my-new-account" justify="flex-end">
-						<p @click="isSignupDialog = !isSignupDialog">관리자 계정 생성</p>
+						<p @click="isSignupDialog = true">관리자 계정 생성</p>
 					</vs-row>
 				</vs-col>
 			</vs-row>
 		</div>
 		<vs-dialog prevent-close v-model="isSignupDialog">
-			<my-sign-up />
+			<my-sign-up @signUpDone="signUpDoneHandler" />
 		</vs-dialog>
 	</div>
 </template>
@@ -57,6 +57,7 @@ export default {
 						// 로그인 성공
 						$cookies.set('x_auth', res.data.x_auth)
 						alert('로그인 성공')
+						this.$router.replace({name: 'Admin'})
 					} else {
 						// 로그인 실패
 						alert(res.data.message)
@@ -68,6 +69,9 @@ export default {
 				.catch((err) => {
 					alert('오류가 발생했습니다. 다시 시도해주세요.')
 				})
+		},
+		signUpDoneHandler() {
+			this.isSignupDialog = false
 		}
 	}
 }

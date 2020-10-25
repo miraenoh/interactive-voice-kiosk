@@ -66,7 +66,8 @@ export default {
                 storeName: this.storename
             }).then((res) => {
                 if (res.data.success) {
-                    alert('회원가입에 성공했습니다.')
+					alert('회원가입에 성공했습니다.')
+					this.$emit('signUpDone')
                 } else {
                     alert(res.data.message)
                 }
