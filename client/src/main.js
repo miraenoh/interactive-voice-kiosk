@@ -10,6 +10,10 @@ Vue.use(Vuesax, {
 })
 import './style.css'
 
+// Use vue-cookies module
+import VueCookies from 'vue-cookies'
+Vue.use(VueCookies)
+
 Vue.config.productionTip = false
 
 new Vue({

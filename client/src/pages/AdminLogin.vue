@@ -19,13 +19,13 @@
 						로그인
 					</vs-button>
 					<vs-row class="my-new-account" justify="flex-end">
-						<p @click="isSignupDialog=!isSignupDialog">관리자 계정 생성</p>
+						<p @click="isSignupDialog = !isSignupDialog">관리자 계정 생성</p>
 					</vs-row>
 				</vs-col>
 			</vs-row>
 		</div>
 		<vs-dialog prevent-close v-model="isSignupDialog">
-            <my-sign-up />
+			<my-sign-up />
 		</vs-dialog>
 	</div>
 </template>
@@ -55,6 +55,7 @@ export default {
 				.then((res) => {
 					if (res.data.success) {
 						// 로그인 성공
+						$cookies.set('x_auth', res.data.x_auth)
 						alert('로그인 성공')
 					} else {
 						// 로그인 실패
