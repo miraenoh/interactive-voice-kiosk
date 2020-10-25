@@ -66,7 +66,8 @@ router.post('/login', (req, res) => {
 				// Save the token into cookies and send the response
 				res.cookie('x_auth', user.token).status(200).json({
 					success: true,
-					userId: user._id
+					userId: user._id,
+					x_auth: user.token
 				})
 			})
 		})

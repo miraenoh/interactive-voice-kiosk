@@ -30,7 +30,7 @@ mongoose
 	})
 
 // Enalbe CORS
-app.use(cors())
+app.use(cors({origin: true, credentials: true}))
 
 // Configure routers
 app.use('/api/user', require('./routes/user'))
