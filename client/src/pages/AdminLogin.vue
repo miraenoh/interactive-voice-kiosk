@@ -56,7 +56,6 @@ export default {
 					if (res.data.success) {
 						// 로그인 성공
 						$cookies.set('x_auth', res.data.x_auth)
-						alert('로그인 성공')
 						this.$router.replace({ name: 'Admin' })
 					} else {
 						// 로그인 실패
