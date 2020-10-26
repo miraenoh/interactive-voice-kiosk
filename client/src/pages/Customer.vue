@@ -135,7 +135,6 @@ export default {
 		async startConversation() {
 			// Start a conversation with the bot
 			this.conversation.isWaiting = true
-			console.log('Start conversation')
 			// Send the start request to the server
 			const res = await axios.get(endpoint + '/api/conversation/start', { params: { userId: this.id } })
 			this.conversation.id = res.data.id
@@ -170,8 +169,6 @@ export default {
 
 			// Send the proceed request to the server
 			const res = await axios.post(endpoint + '/api/conversation/proceed', { convId: this.conversation.id })
-			console.log('got response')
-			console.log(res.data)
 			this.conversation.success = res.data.success
 			this.conversation.hasFinished = res.data.hasFinished
 
@@ -179,9 +176,7 @@ export default {
 			if (this.conversation.hasFinished == true) {
 				// Conversation Finished
 				// Show the order info with notification
-				console.log('FINISHED')
 				this.conversation.order = res.data.order
-				console.log(this.conversation.order)
 			}
 			this.conversation.isWaiting = false
 
