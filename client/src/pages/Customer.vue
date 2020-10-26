@@ -40,7 +40,10 @@
 				</vs-row>
 			</vs-col>
 		</vs-row>
-		<my-receipt v-if="dialog" :dialog="dialog" :conversation="dialogData" />
+		<vs-dialog class="my-dialog" v-model="dialog">
+			<my-receipt :conversation="dialogData" />
+		</vs-dialog>
+		<!-- <my-receipt v-if="dialog" :dialog="dialog" :conversation="dialogData" /> -->
 		<div class="bottomRight">
 			<my-recorder
 				@recordDone="proceedConversation"
@@ -48,7 +51,7 @@
 				:fileName="conversation.id"
 			/>
 			<vs-avatar
-			class="my-bot-avatar"
+				class="my-bot-avatar"
 				@click="handleClick"
 				circle
 				:primary="!conversation.isRecording"
@@ -136,7 +139,9 @@ export default {
 			// Start a conversation with the bot
 			this.conversation.isWaiting = true
 			// Send the start request to the server
-			const res = await axios.get(endpoint + '/api/conversation/start', { params: { userId: this.id } })
+			const res = await axios.get(endpoint + '/api/conversation/start', {
+				params: { userId: this.id }
+			})
 			this.conversation.id = res.data.id
 			this.updateConvData(res.data)
 
@@ -168,7 +173,9 @@ export default {
 			this.conversation.isWaiting = true
 
 			// Send the proceed request to the server
-			const res = await axios.post(endpoint + '/api/conversation/proceed', { convId: this.conversation.id })
+			const res = await axios.post(endpoint + '/api/conversation/proceed', {
+				convId: this.conversation.id
+			})
 			this.conversation.success = res.data.success
 			this.conversation.hasFinished = res.data.hasFinished
 
@@ -236,5 +243,10 @@ h1 {
 }
 div.bottom-intent {
 	height: 100px;
+}
+</style>
+<style>
+.my-dialog .vs-dialog__content {
+	margin-bottom: 0;
 }
 </style>
