@@ -21,10 +21,7 @@ import {logout} from '../utils/auth'
 export default {
 	methods: {
 		goToMain() {
-			if (this.$route.path == '/admin/dashboard') {
-				// Refresh
-				location.reload()
-			} else {
+			if (this.$route.path != '/admin/dashboard') {
 				// Go to the admin main page
 				this.$router.replace({ name: 'Admin' })
 			}
