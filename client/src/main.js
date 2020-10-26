@@ -2,6 +2,8 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 
+import {store} from './store'
+
 // Use Vuesax UI framework
 import Vuesax from 'vuesax'
 import 'vuesax/dist/vuesax.css'
@@ -18,5 +20,6 @@ Vue.config.productionTip = false
 
 new Vue({
 	router,
+	store: store,
 	render: (h) => h(App)
 }).$mount('#app')
