@@ -4,12 +4,14 @@
 
 :root {
 	--my-lightgray: #f1f1f1;
+	--my-text: rgb(30, 30, 30);
 }
 
 body {
 	font-family: 'Noto Sans KR';
 	margin: 0;
 	background: rgba(var(--vs-gray-2), 1);
+	color: var(--my-text);
 }
 
 h1,
