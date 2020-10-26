@@ -31,11 +31,8 @@
 </template>
 
 <script>
-import axios from 'axios'
-
 import SignUp from '../components/SignUp'
-
-const endpoint = process.env.VUE_APP_API_ENDPOINT
+import { login } from '../utils/auth'
 
 export default {
 	components: {
@@ -50,19 +47,13 @@ export default {
 	},
 	methods: {
 		login() {
-			axios
-				.post(endpoint + '/api/user/login', { name: this.username, password: this.password })
+			login(this.username, this.password)
 				.then((res) => {
-					if (res.data.success) {
-						// 로그인 성공
-						$cookies.set('x_auth', res.data.x_auth)
-						this.$store.state.adminUser.id = res.data.userId
-						this.$store.state.adminUser.storeName = res.data.storeName
-
+					if (res.success) {
 						this.$router.replace({ name: 'Admin' })
 					} else {
 						// 로그인 실패
-						alert(res.data.message)
+						alert(res.message)
 						// 폼 데이터 초기화
 						this.username = ''
 						this.password = ''

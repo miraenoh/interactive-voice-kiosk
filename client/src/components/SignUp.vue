@@ -28,9 +28,7 @@
 </template>
 
 <script>
-import axios from 'axios'
-
-const endpoint = process.env.VUE_APP_API_ENDPOINT
+import { signUp } from '../utils/auth'
 
 export default {
 	data: function() {
@@ -60,21 +58,19 @@ export default {
 			}
 		},
 		signUpRequest() {
-            axios.post(endpoint + '/api/user/register', {
-                name: this.username,
-                password: this.password,
-                storeName: this.storename
-            }).then((res) => {
-                if (res.data.success) {
-					alert('회원가입에 성공했습니다.')
-					this.$emit('signUpDone')
-                } else {
-                    alert(res.data.message)
-                }
-            }).catch((err) => {
-                alert('오류가 발생했습니다. 다시 시도해주세요.')
-            })
-        }
+			signUp(this.username, this.password, this.storename)
+				.then((res) => {
+					if (res.success) {
+						alert('회원가입에 성공했습니다.')
+						this.$emit('signUpDone')
+					} else {
+						alert(res.message)
+					}
+				})
+				.catch((err) => {
+					alert('오류가 발생했습니다. 다시 시도해주세요.')
+				})
+		}
 	}
 }
 </script>
