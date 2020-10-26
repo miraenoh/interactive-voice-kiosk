@@ -56,6 +56,9 @@ export default {
 					if (res.data.success) {
 						// 로그인 성공
 						$cookies.set('x_auth', res.data.x_auth)
+						this.$store.state.adminUser.id = res.data.userId
+						this.$store.state.adminUser.storeName = res.data.storeName
+
 						this.$router.replace({ name: 'Admin' })
 					} else {
 						// 로그인 실패
