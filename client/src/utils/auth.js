@@ -4,6 +4,17 @@ import { store } from '../store/store'
 
 const endpoint = process.env.VUE_APP_API_ENDPOINT
 
+export async function getAuth() {
+	try {
+		const res = await axios.get(endpoint + '/api/user/auth', { withCredentials: true })
+
+		return res.data
+	} catch (err) {
+		console.error(err)
+		throw err
+	}
+}
+
 export async function login(username, password) {
 	try {
 		const res = await axios.post(endpoint + '/api/user/login', {
@@ -16,8 +27,6 @@ export async function login(username, password) {
 			$cookies.set('x_auth', res.data.x_auth)
 			store.state.adminUser.id = res.data.userId
 			store.state.adminUser.storeName = res.data.storeName
-
-			console.log(store.state.adminUser)
 
 			return { success: true }
 		} else {
@@ -32,9 +41,7 @@ export async function login(username, password) {
 
 export async function logout() {
 	try {
-		const res = await axios.get(endpoint + '/api/user/logout', {
-			withCredentials: true
-		})
+		const res = await axios.get(endpoint + '/api/user/logout', { withCredentials: true })
 
 		if (res.data.success) {
 			$cookies.remove('x_auth')

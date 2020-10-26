@@ -6,27 +6,34 @@
 </template>
 
 <script>
-import axios from 'axios'
-
 import Navbar from '../components/Navbar'
-
-const endpoint = process.env.VUE_APP_API_ENDPOINT
+import { getAuth } from '../utils/auth'
 
 export default {
 	components: {
 		myNavbar: Navbar
 	},
 	created() {
-		axios.get(endpoint + '/api/user/auth', { withCredentials: true }).then((res) => {
-			if (res.data.isAuth) {
-				// Logined user
-				if (this.$route.path == '/admin') {
-					this.$router.push({ name: 'AdminDashboard' })
+		getAuth()
+			.then((res) => {
+				if (res.isAuth) {
+					// Logined user
+					// Save the adminUser data into the state if not exists
+					if (!this.$store.state.adminUser.id) {
+						this.$store.state.adminUser.id = res.userId
+						this.$store.state.adminUser.storeName = res.storeName
+					}
+					// Go to the main page(dashboard)
+					if (this.$route.path == '/admin') {
+						this.$router.push({ name: 'AdminDashboard' })
+					}
+				} else {
+					this.$router.replace({ name: 'AdminLogin' })
 				}
-			} else {
+			})
+			.catch((err) => {
 				this.$router.replace({ name: 'AdminLogin' })
-			}
-		})
+			})
 	}
 }
 </script>
