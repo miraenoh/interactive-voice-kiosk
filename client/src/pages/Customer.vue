@@ -48,6 +48,7 @@
 				:fileName="conversation.id"
 			/>
 			<vs-avatar
+			class="my-bot-avatar"
 				@click="handleClick"
 				circle
 				:primary="!conversation.isRecording"
@@ -223,28 +224,15 @@ export default {
 	}
 }
 </script>
-<style>
-body {
-	background: rgba(var(--vs-gray-2), 1);
-}
-.container {
-	background-color: white;
-	border-radius: 1rem;
-	padding: 1rem;
-}
-h1,
-h2 {
-	font-family: 'Jua';
-	font-weight: normal;
-}
+<style scoped>
 h1 {
 	font-size: 3rem;
 }
-.vs-avatar {
+.my-bot-avatar {
 	cursor: pointer;
 	margin-top: 0.5rem;
 }
-.vs-avatar i {
+.my-bot-avatar i {
 	font-size: 4rem !important;
 }
 .my-header {

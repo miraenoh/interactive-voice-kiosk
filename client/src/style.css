@@ -7,7 +7,15 @@
 }
 
 body {
-    font-family: 'Noto Sans KR';
+	font-family: 'Noto Sans KR';
+	margin: 0;
+	background: rgba(var(--vs-gray-2), 1);
+}
+
+h1,
+h2 {
+	font-family: 'Jua';
+	font-weight: normal;
 }
 
 .center {
@@ -15,7 +23,7 @@ body {
 }
 
 .right {
-    text-align: end;
+	text-align: end;
 }
 
 .bottomRight {
@@ -27,6 +35,12 @@ body {
 
 .floatRight {
 	float: right;
+}
+
+.container {
+	background-color: white;
+	border-radius: 1rem;
+	padding: 1rem;
 }
 
 .vs-table table {
