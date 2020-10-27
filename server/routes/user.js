@@ -67,6 +67,7 @@ router.post('/login', (req, res) => {
 				res.cookie('x_auth', user.token).status(200).json({
 					success: true,
 					userId: user._id,
+					name: user.name,
 					storeName: user.storeName,
 					x_auth: user.token
 				})
