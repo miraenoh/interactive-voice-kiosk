@@ -16,34 +16,21 @@
 </template>
 
 <script>
-import axios from 'axios'
+import {logout} from '../utils/auth'
 
 export default {
 	methods: {
 		goToMain() {
-			if (this.$route.path == '/admin/dashboard') {
-				// Refresh
-				location.reload()
-			} else {
+			if (this.$route.path != '/admin/dashboard') {
 				// Go to the admin main page
 				this.$router.replace({ name: 'Admin' })
 			}
 		},
 		logout() {
 			// Logout the current user
-			axios
-				.get(process.env.VUE_APP_API_ENDPOINT + '/api/user/logout', { withCredentials: true })
-				.then((res) => {
-					if (res.data.success) {
-						$cookies.remove('x_auth')
-						location.reload()
-					} else {
-						alert('로그아웃 실패')
-					}
-				})
-				.catch((err) => {
+			logout().catch((err) => {
 					alert('에러가 발생했습니다. 다시 시도해주세요.')
-				})
+			})
 		}
 	}
 }

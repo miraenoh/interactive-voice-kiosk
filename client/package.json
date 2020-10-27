@@ -13,7 +13,8 @@
     "vue-audio-recorder": "^3.0.1",
     "vue-cookies": "^1.7.4",
     "vue-router": "^3.2.0",
-    "vuesax": "^4.0.1-alpha.24"
+    "vuesax": "^4.0.1-alpha.24",
+    "vuex": "^3.5.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
