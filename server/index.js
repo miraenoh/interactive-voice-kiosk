@@ -37,6 +37,7 @@ app.use('/api/user', require('./routes/user'))
 app.use('/api/menu', require('./routes/menu'))
 app.use('/api/conversation', require('./routes/conversation'))
 app.use('/api/file', require('./routes/file'))
+app.use('/api/order', require('./routes/order'))
 
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`)

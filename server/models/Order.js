@@ -8,7 +8,12 @@ const orderSchema = mongoose.Schema({
 		required: true,
 		default: 0
 	},
-	menus: Array
+	menus: Array,
+	isComplete: {
+		type: Boolean,
+		required: true,
+		default: false
+	}
 })
 
 const Order = mongoose.model('Order', orderSchema)
