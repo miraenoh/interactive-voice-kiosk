@@ -1,6 +1,6 @@
 <template>
 	<div class="receipt-container">
-		<h2 class="not-margin">주문번호 {{ conversation.order.orderNo }}</h2>
+		<h3 class="not-margin">주문번호 {{ order.orderNo }}</h3>
 		<vs-table>
 			<template #thead>
 				<vs-tr>
@@ -16,7 +16,7 @@
 				</vs-tr>
 			</template>
 			<template #tbody>
-				<vs-tr :key="i" v-for="(menu, i) in conversation.order.menus" :data="menu">
+				<vs-tr :key="i" v-for="(menu, i) in order.menus" :data="menu">
 					<vs-td>
 						{{ menu.name }}
 					</vs-td>
@@ -30,7 +30,7 @@
 			</template>
 		</vs-table>
 		<div class="footer-dialog">
-			<p>총 주문금액은 {{ conversation.order.totalPrice }}원 입니다.</p>
+			<p>총 주문금액 {{ order.totalPrice }}원</p>
 		</div>
 	</div>
 </template>
@@ -38,7 +38,7 @@
 <script>
 export default {
 	props: {
-		conversation: {
+		order: {
 			type: Object
 		}
 	}
@@ -53,5 +53,11 @@ export default {
 
 .receipt-container tr {
 	text-align: left;
+}
+
+.receipt-container .vs-table {
+	/* border-width: 3px; */
+	/* border-style: solid; */
+	/* border-color: rgba(var(--vs-gray-3), 1); */
 }
 </style>

@@ -41,7 +41,7 @@
 			</vs-col>
 		</vs-row>
 		<vs-dialog class="my-dialog" v-model="dialog">
-			<my-receipt :conversation="dialogData" />
+			<my-receipt :order="dialogData" />
 		</vs-dialog>
 		<div class="bottomRight">
 			<my-recorder
@@ -193,7 +193,7 @@ export default {
 		},
 		handleAfterFinish() {
 			// Open notification
-			this.dialogData = this.conversation
+			this.dialogData = this.conversation.order
 			this.dialog = true
 
 			this.resetConversation()

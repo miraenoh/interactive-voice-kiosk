@@ -12,10 +12,12 @@ body {
 	margin: 0;
 	background: rgba(var(--vs-gray-2), 1);
 	color: var(--my-text);
+	cursor: default;
 }
 
 h1,
-h2 {
+h2,
+h3 {
 	font-family: 'Jua';
 	font-weight: normal;
 }
