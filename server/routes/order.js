@@ -14,14 +14,28 @@ router.get('/store/all', auth, (req, res) => {
 
 // Response with not completed orders corresponding to the logined store
 router.get('/store/incomplete', auth, (req, res) => {
-	Order.find({userId: req.user.name, isComplete: false}, (err, orders) => {
+	Order.find({ userId: req.user.name, isComplete: false }, (err, orders) => {
 		return handlerService.responseDataHandler(res, err, orders)
+	})
+})
+
+// Set an order as completed
+router.post('/complete', auth, (req, res) => {
+	Order.updateOne({ _id: req.body.orderId }, { isComplete: true }, (err, order) => {
+		return handlerService.responseHandler(res, err, order)
 	})
 })
 
 // Delete all orders corresponding to the logined store
 router.delete('/store/all', auth, (req, res) => {
 	Order.deleteMany({ userId: req.user.name }, (err) => {
+		return handlerService.responseHandler(res, err)
+	})
+})
+
+// Delete an order
+router.delete('', auth, (req, res) => {
+	Order.deleteOne({ _id: req.query.orderId }, (err) => {
 		return handlerService.responseHandler(res, err)
 	})
 })
