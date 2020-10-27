@@ -7,7 +7,8 @@ export const store = new Vuex.Store({
     state: {
         adminUser: {
             id: undefined,
-            storeName: undefined
+            name: undefined,
+            storeName: undefined,
         }
     }
 })

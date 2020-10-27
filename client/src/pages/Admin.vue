@@ -21,6 +21,7 @@ export default {
 					// Save the adminUser data into the state if not exists
 					if (!this.$store.state.adminUser.id) {
 						this.$store.state.adminUser.id = res.userId
+						this.$store.state.adminUser.name = res.name
 						this.$store.state.adminUser.storeName = res.storeName
 					}
 					// Go to the main page(dashboard)

@@ -27,6 +27,7 @@ export async function login(username, password) {
 			// Login success
 			$cookies.set('x_auth', res.data.x_auth)
 			store.state.adminUser.id = res.data.userId
+			store.state.adminUser.name = res.data.name
 			store.state.adminUser.storeName = res.data.storeName
 
 			return { success: true }
