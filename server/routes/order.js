@@ -13,7 +13,7 @@ router.get('/store/all', auth, (req, res) => {
 })
 
 // Response with not completed orders corresponding to the logined store
-router.get('/store/not-complete', auth, (req, res) => {
+router.get('/store/incomplete', auth, (req, res) => {
 	Order.find({userId: req.user.name, isComplete: false}, (err, orders) => {
 		return handlerService.responseDataHandler(res, err, orders)
 	})
