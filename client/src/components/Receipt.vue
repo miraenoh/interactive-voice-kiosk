@@ -50,4 +50,8 @@ export default {
 	text-align: center;
 	padding: 0.5rem;
 }
+
+.receipt-container tr {
+	text-align: left;
+}
 </style>

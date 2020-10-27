@@ -43,7 +43,6 @@
 		<vs-dialog class="my-dialog" v-model="dialog">
 			<my-receipt :conversation="dialogData" />
 		</vs-dialog>
-		<!-- <my-receipt v-if="dialog" :dialog="dialog" :conversation="dialogData" /> -->
 		<div class="bottomRight">
 			<my-recorder
 				@recordDone="proceedConversation"
