@@ -212,15 +212,6 @@ h1 {
 	font-size: 4rem !important;
 }
 
-.my-header {
-	background-color: rgba(var(--vs-gray-2), 1);
-	font-weight: bold;
-}
-
-div.bottom-intent {
-	height: 100px;
-}
-
 @media (min-width: 900px) {
 	.my-menu-col {
 		padding: 0 0.5rem;
