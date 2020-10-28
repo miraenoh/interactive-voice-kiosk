@@ -1,9 +1,9 @@
 <template>
 	<vs-button-group>
-		<vs-button @click="startRecorder" relief success icon>
+		<vs-button @click="startRecorder" :active="buttonActive == 'start'" relief success icon>
 			<i class="bx bxs-microphone"></i>
 		</vs-button>
-		<vs-button @click="stopRecorder" relief danger icon>
+		<vs-button @click="stopRecorder" :active="buttonActive == 'stop'" relief danger icon>
 			<i class="bx bx-stop"></i>
 		</vs-button>
 	</vs-button-group>
@@ -24,6 +24,7 @@ export default {
 		return {
 			recorder: this._initRecorder(),
 			record: null,
+			buttonActive: ''
 		}
 	},
 	computed: {
@@ -48,11 +49,13 @@ export default {
 		},
 		startRecorder() {
 			if (!this.isRecording) {
+				this.buttonActive = 'start'
 				this.recorder.start()
 			}
 		},
 		stopRecorder() {
 			if (this.isRecording) {
+				this.buttonActive = 'stop'
 				this.recorder.stop()
 				this.record = this.recorder.recordList()[0]
 				// console.log('record')
