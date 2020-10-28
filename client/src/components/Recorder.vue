@@ -55,8 +55,8 @@ export default {
 			if (this.isRecording) {
 				this.recorder.stop()
 				this.record = this.recorder.recordList()[0]
-				console.log('record')
-				console.log(this.record)
+				// console.log('record')
+				// console.log(this.record)
 
 				this.recorder = this._initRecorder()
 
@@ -88,7 +88,7 @@ export default {
 			link.click()
 		},
 		callback(msg) {
-			console.log('Event: ', msg)
+			// console.log('Event: ', msg)
 		}
 	}
 }
