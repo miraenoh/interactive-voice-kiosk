@@ -114,8 +114,10 @@ const createOrder = async (transcript, conversation) => {
 	// Find ordered menus
 	let selectedMenus = []
 	let words = transcript.split(' ')
+	let middleWords = []
 	let i_word = 0
 	while (i_word < words.length) {
+		let hasFound = false
 		for (let menu of menus) {
 			let menuName = menu.name.split(' ').join('')
 			let selectedMenu = {
@@ -126,8 +128,8 @@ const createOrder = async (transcript, conversation) => {
 			}
 
 			// Check if the menuName starts with the word
-			const i_word_ori = i_word
-			let hasFound = false
+			let i_word_ori = i_word
+			hasFound = false
 			while (menuName.indexOf(words[i_word]) >= 0) {
 				menuName = menuName.replace(words[i_word], '')
 				if (menuName.length == 0) {
@@ -137,16 +139,28 @@ const createOrder = async (transcript, conversation) => {
 
 				i_word++
 			}
+			if (words[i_word].indexOf(menuName) >= 0) {
+				hasFound = true
+			}
 
 			if (!hasFound) {
 				i_word = i_word_ori
 			} else {
 				// Found the menu
+				// Get the numbers of last added order
+				if (selectedMenus.length && middleWords.length) {
+					const numOfLastMenu = getMenuNumber(middleWords)
+					selectedMenus[selectedMenus.length - 1].number = numOfLastMenu
+				}
+
 				selectedMenus.push(selectedMenu)
 				break
 			}
 		}
 
+		if (!hasFound) {
+			middleWords.push(words[i_word])
+		}
 		i_word++
 	}
 
@@ -170,6 +184,11 @@ const createOrder = async (transcript, conversation) => {
 		// No menu found
 		return null
 	}
+}
+
+// Get the number from arry of words
+const getMenuNumber = (words) => {
+	return 1
 }
 
 // Recognize the user's voice and return the transcript
