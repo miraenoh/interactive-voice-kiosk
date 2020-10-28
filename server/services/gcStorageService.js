@@ -12,24 +12,28 @@ const uploadFile = async (bucketName, filePath) => {
 	return true
 }
 
-const deleteFile = (bucketName, fileName) => {
+const deleteFile = async (bucketName, fileName) => {
 	const file = storage.bucket(bucketName).file(fileName)
-	file.delete()
+	const res = await file.exists()
+	const exists = res[0]
+	if (exists) {
+		await file.delete()
+	}
 
 	return true
 }
 
 // Check if the given file exists and return boolean
 const fileExists = async (bucketName, fileName) => {
-    const file = storage.bucket(bucketName).file(fileName)
-    const res = await file.exists()
-    const exists = res[0]
+	const file = storage.bucket(bucketName).file(fileName)
+	const res = await file.exists()
+	const exists = res[0]
 
-    return exists
+	return exists
 }
 
 module.exports = {
 	uploadFile: uploadFile,
 	deleteFile: deleteFile,
-    fileExists: fileExists
+	fileExists: fileExists
 }

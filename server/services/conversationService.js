@@ -107,6 +107,35 @@ const processOrder = async (conversation, cb) => {
 	}
 }
 
+// Delete orders older than the expTime
+const deleteOldConversations = async () => {
+	console.log('\nSCHEDULED TASK deleteOldConversations')
+	try {
+		const conversations = await Conversation.find({}).exec()
+		const timeNow = Math.floor(new Date().getTime() / 1000)
+
+		if (conversations.length) {
+			for (const conversation of conversations) {
+				if (conversation.expTime < timeNow) {
+					// The conversation has been expired
+					// Remove this conversation
+					const convId = conversation._id
+					await Conversation.deleteOne({ _id: convId })
+
+					// Remove the voice file from GCS
+					await gcStorageService.deleteFile(GC_STORAGE.BUCKET_NAME_BOT, convId + GC_STORAGE.FILE_FORMAT)
+					console.log(`conversation ${convId} has been removed.`)
+				}
+			}
+		}
+
+		console.log('SCHEDULED TASK DONE\n')
+	} catch (err) {
+		console.error(err)
+		console.log('ERROR OCCURED DURING SCHEDULED TASK')
+	}
+}
+
 // Create the order information by analizing the trascript
 const createOrder = async (transcript, conversation) => {
 	// Load the store's data from mongodb
@@ -288,6 +317,7 @@ const calculateOrderNo = async (userId) => {
 module.exports = {
 	start: start,
 	processOrder: processOrder,
+	deleteOldConversations: deleteOldConversations,
 	recognizeVoice: recognizeVoice,
 	makeVoice: makeVoice
 }
