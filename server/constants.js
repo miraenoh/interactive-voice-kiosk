@@ -18,7 +18,7 @@ module.exports = {
 		CONFIG: {
 			encoding: AUDIO_ENCODING,
 			languageCode: LANG_CODE,
-			enableAutomaticPunctuation: true
+			enableAutomaticPunctuation: false
 		},
 		GCS_URI: 'gs://voice-user/'
 	},
