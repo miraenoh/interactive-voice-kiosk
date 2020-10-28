@@ -3,8 +3,9 @@
 		<vs-col w="9" sm="11" xs="12">
 			<h1>{{ storeName }} DASHBOARD</h1>
 			<vs-row>
-				<vs-col w="6" xs="12" class="my-widget">
-					<div class="container">
+				<vs-col w="6" xs="12">
+					<!-- Incomplete orders widget -->
+					<div class="container my-widget">
 						<vs-row justify="space-between" align="center">
 							<h2>진행중인 주문</h2>
 							<vs-button shadow icon @click="getOrders"><i class="bx bx-refresh"/></vs-button>
@@ -30,9 +31,47 @@
 							</vs-row>
 						</div>
 					</div>
+					<!-- Complete orders widget -->
+					<div class="container my-widget">
+						<vs-row justify="space-between" align="center">
+							<h2>완료된 주문</h2>
+							<div class="my-button-row">
+								<vs-tooltip>
+									<vs-button icon danger @click="isDialog = true">
+										<i class="bx bxs-trash" />
+									</vs-button>
+									<template #tooltip>
+										모두 삭제
+									</template>
+								</vs-tooltip>
+								<vs-button shadow icon @click="getOrders"><i class="bx bx-refresh"/></vs-button>
+							</div>
+						</vs-row>
+						<vs-row class="container my-small-card" justify="center" v-if="!completeOrders.length">
+							<p>
+								완료된 주문이 없습니다.
+							</p>
+						</vs-row>
+						<div
+							v-for="order in completeOrders"
+							:key="order._id"
+							class="container my-small-card my-receipt"
+						>
+							<my-receipt :order="order" />
+							<vs-row class="my-container-footer" justify="flex-end">
+								<vs-button icon warn @click="inCompleteOrder(order._id)">
+									<i class="bx bx-up-arrow-alt" />미완료
+								</vs-button>
+								<vs-button icon danger @click="deleteOrder(order._id)">
+									<i class="bx bxs-trash" />주문 삭제
+								</vs-button>
+							</vs-row>
+						</div>
+					</div>
 				</vs-col>
-				<vs-col w="6" xs="12" class="my-widget">
-					<div class="container">
+				<vs-col w="6" xs="12">
+					<!-- Menus widget -->
+					<div class="container my-widget">
 						<vs-row justify="space-between" align="center">
 							<h2>메뉴 관리</h2>
 							<vs-button shadow icon @click="getMenuGroups"><i class="bx bx-refresh"/></vs-button>
@@ -63,6 +102,19 @@
 				</vs-col>
 			</vs-row>
 		</vs-col>
+		<!-- Delete all completed orders dialog -->
+		<vs-dialog class="admin-dashboard-dialog" v-model="isDialog">
+			<template #header>
+				<h3>
+					완료된 주문을 모두 삭제하시겠어요?
+				</h3>
+			</template>
+			<vs-row justify="center">
+				<vs-button danger @click="deleteAllCompleteOrders">
+					네, 삭제합니다.
+				</vs-button>
+			</vs-row>
+		</vs-dialog>
 	</vs-row>
 </template>
 
@@ -82,8 +134,10 @@ export default {
 	data: function() {
 		return {
 			orders: [],
+			completeOrders: [],
 			menuGroups: [],
-			newMenuGroupName: ''
+			newMenuGroupName: '',
+			isDialog: false
 		}
 	},
 	computed: {
@@ -93,6 +147,8 @@ export default {
 	},
 	methods: {
 		getOrders() {
+			const errorMessage = '주문정보 로딩중 에러가 발생했습니다.'
+
 			// Get incomplete orders
 			axios
 				.get(endpoint + '/api/order/store/incomplete', { withCredentials: true })
@@ -101,7 +157,18 @@ export default {
 				})
 				.catch((err) => {
 					console.error(err)
-					alert('주문정보 로딩중 에러가 발생했습니다.')
+					alert(errorMessage)
+				})
+
+			// Get complete orders
+			axios
+				.get(endpoint + '/api/order/store/complete', { withCredentials: true })
+				.then((res) => {
+					this.completeOrders = res.data.reverse()
+				})
+				.catch((err) => {
+					console.error(err)
+					alert(errorMessage)
 				})
 		},
 		getMenuGroups() {
@@ -131,6 +198,22 @@ export default {
 					alert('준비 완료 처리중 오류가 발생했습니다.')
 				})
 		},
+		inCompleteOrder(orderId) {
+			// Call order incomplete endpoint
+			axios
+				.post(endpoint + '/api/order/incomplete', { orderId: orderId }, { withCredentials: true })
+				.then((res) => {
+					if (res.data.success) {
+						this.getOrders()
+					} else {
+						alert('주문 미완료 처리에 실패했습니다.')
+					}
+				})
+				.catch((err) => {
+					console.error(err)
+					alert('주문 미완료 처리중 오류가 발생했습니다.')
+				})
+		},
 		deleteOrder(orderId) {
 			// Call order delete endpoint
 			axios
@@ -145,6 +228,23 @@ export default {
 				.catch((err) => {
 					console.error(err)
 					alert('주문 삭제중 오류가 발생했습니다.')
+				})
+		},
+		deleteAllCompleteOrders() {
+			// Call order all complete delete endpoint
+			axios
+				.delete(endpoint + '/api/order/store/all/complete', { withCredentials: true })
+				.then((res) => {
+					if (res.data.success) {
+						this.getOrders()
+						this.isDialog = false
+					} else {
+						alert('모든 완료주문 삭제에 실패했습니다.')
+					}
+				})
+				.catch((err) => {
+					console.error(err)
+					alert('모든 완료주문 삭제중 오류가 발생했습니다.')
 				})
 		},
 		addMenuGroup() {
@@ -201,7 +301,7 @@ export default {
 }
 
 .my-widget {
-	padding: 0 0.5rem 1rem;
+	margin: 0 0.5rem 1rem;
 	/* padding: 1rem 0 0.5rem; */
 }
 
@@ -230,6 +330,11 @@ export default {
 	padding: 10px 12px;
 }
 
+.my-button-row {
+	display: flex;
+	flex-direction: row;
+}
+
 @media (max-width: 900px) {
 	.my-small-card {
 		padding: 0;
@@ -245,5 +350,11 @@ h1 {
 
 h3 {
 	margin: 0.5rem 0;
+}
+</style>
+
+<style>
+.admin-dashboard-dialog .vs-dialog__header {
+	margin-top: 20px;
 }
 </style>
