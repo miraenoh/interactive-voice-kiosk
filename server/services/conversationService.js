@@ -140,7 +140,7 @@ const createOrder = async (transcript, conversation) => {
 
 				i_word++
 			}
-			if (words[i_word].indexOf(menuName) >= 0) {
+			if (i_word < words.length && words[i_word].indexOf(menuName) >= 0) {
 				hasFound = true
 			}
 
@@ -160,7 +160,7 @@ const createOrder = async (transcript, conversation) => {
 			}
 		}
 
-		if (!hasFound) {
+		if (i_word < words.length && !hasFound) {
 			middleWords.push(words[i_word])
 		}
 		i_word++

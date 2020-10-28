@@ -74,7 +74,17 @@
 					<div class="container my-widget">
 						<vs-row justify="space-between" align="center">
 							<h2>메뉴 관리</h2>
-							<vs-button shadow icon @click="getMenuGroups"><i class="bx bx-refresh"/></vs-button>
+							<div class="my-button-row">
+								<vs-tooltip>
+									<vs-button icon danger gradient @click="createExplanation">
+										<i class="bx bxs-user-voice" />
+									</vs-button>
+									<template #tooltip>
+										메뉴설명 음성 업데이트
+									</template>
+								</vs-tooltip>
+								<vs-button shadow icon @click="getMenuGroups"><i class="bx bx-refresh"/></vs-button>
+							</div>
 						</vs-row>
 						<vs-table class="my-small-card menus-table">
 							<template #header>
@@ -286,6 +296,24 @@ export default {
 				.catch((err) => {
 					console.error(err)
 					alert('카테고리 삭제중 오류가 발생했습니다.')
+				})
+		},
+		createExplanation() {
+			const loading = this.$vs.loading()
+			axios
+				.post(endpoint + '/api/explanation', {}, { withCredentials: true })
+				.then((res) => {
+					loading.close()
+
+					if (res.data.success) {
+						alert('음성 업데이트 성공')
+					} else {
+						alert('메뉴설명 음성 업데이트에 실패했습니다.')
+					}
+				})
+				.catch((err) => {
+					loading.close()
+					alert('메뉴설명 음성 업데이트중 오류가 발생했습니다.')
 				})
 		}
 	},
