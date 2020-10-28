@@ -18,6 +18,7 @@ const GC_STORAGE = require('../constants').GC_STORAGE
 const TTS = require('../constants').TTS
 const STT = require('../constants').STT
 const SCRIPT = require('../constants').SCRIPT
+const NUMBERS_DICT = require('../constants').NUMBERS_DICT
 
 // Module functions
 // Start a conversation
@@ -33,7 +34,6 @@ const start = async (conversation) => {
 		storeName + GC_STORAGE.FILE_FORMAT
 	)
 	if (exists) {
-		console.log('exists')
 		// Info file already exists
 		// Skip making the voice
 		return true
@@ -152,6 +152,7 @@ const createOrder = async (transcript, conversation) => {
 					const numOfLastMenu = getMenuNumber(middleWords)
 					selectedMenus[selectedMenus.length - 1].number = numOfLastMenu
 				}
+				middleWords = []
 
 				selectedMenus.push(selectedMenu)
 				break
@@ -167,6 +168,12 @@ const createOrder = async (transcript, conversation) => {
 	// Check if found any menus
 	if (selectedMenus.length) {
 		// Success
+		// Get the numbers of last added order
+		if (middleWords.length) {
+			const numOfLastMenu = getMenuNumber(middleWords)
+			selectedMenus[selectedMenus.length - 1].number = numOfLastMenu
+		}
+
 		// Create and return the order
 		const userId = conversation.userId
 		const totalPrice = calculateTotalPrice(selectedMenus)
@@ -184,11 +191,6 @@ const createOrder = async (transcript, conversation) => {
 		// No menu found
 		return null
 	}
-}
-
-// Get the number from arry of words
-const getMenuNumber = (words) => {
-	return 1
 }
 
 // Recognize the user's voice and return the transcript
@@ -247,6 +249,24 @@ const makeVoice = async (fileName, text) => {
 	await unlink(filePath)
 
 	return true
+}
+
+// Get the number from arry of words
+const getMenuNumber = (words) => {
+	for (const word of words) {
+		const parsedNumber = parseInt(word)
+		if (parsedNumber) {
+			return parsedNumber
+		}
+
+		for (const number_word in NUMBERS_DICT) {
+			if (word.includes(number_word)) {
+				return NUMBERS_DICT[number_word]
+			}
+		}
+	}
+
+	return 1
 }
 
 const calculateTotalPrice = (menus) => {
