@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 import { store } from '../store/store'
+import router from '../router'
 
 const endpoint = process.env.VUE_APP_API_ENDPOINT
 
@@ -26,6 +27,7 @@ export async function login(username, password) {
 			// Login success
 			$cookies.set('x_auth', res.data.x_auth)
 			store.state.adminUser.id = res.data.userId
+			store.state.adminUser.name = res.data.name
 			store.state.adminUser.storeName = res.data.storeName
 
 			return { success: true }
@@ -45,7 +47,7 @@ export async function logout() {
 
 		if (res.data.success) {
 			$cookies.remove('x_auth')
-			location.reload()
+			router.replace({name: 'AdminLogin'})
 		} else {
 			alert('로그아웃 실패')
 		}

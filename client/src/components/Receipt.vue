@@ -1,7 +1,7 @@
 <template>
 	<div class="receipt-container">
 		<h3 class="not-margin">주문번호 {{ order.orderNo }}</h3>
-		<vs-table>
+		<vs-table striped>
 			<template #thead>
 				<vs-tr>
 					<vs-th>
@@ -53,11 +53,5 @@ export default {
 
 .receipt-container tr {
 	text-align: left;
-}
-
-.receipt-container .vs-table {
-	/* border-width: 3px; */
-	/* border-style: solid; */
-	/* border-color: rgba(var(--vs-gray-3), 1); */
 }
 </style>
