@@ -18,6 +18,7 @@ const GC_STORAGE = require('../constants').GC_STORAGE
 const TTS = require('../constants').TTS
 const STT = require('../constants').STT
 const SCRIPT = require('../constants').SCRIPT
+const NUMBERS_DICT = require('../constants').NUMBERS_DICT
 
 // Module functions
 // Start a conversation
@@ -33,7 +34,6 @@ const start = async (conversation) => {
 		storeName + GC_STORAGE.FILE_FORMAT
 	)
 	if (exists) {
-		console.log('exists')
 		// Info file already exists
 		// Skip making the voice
 		return true
@@ -106,6 +106,7 @@ const processOrder = async (conversation, cb) => {
 	}
 }
 
+// Create the order information by analizing the trascript
 const createOrder = async (transcript, conversation) => {
 	// Load the store's data from mongodb
 	const menus = await Menu.find({ userId: conversation.userId }).exec()
@@ -113,28 +114,66 @@ const createOrder = async (transcript, conversation) => {
 	// Find ordered menus
 	let selectedMenus = []
 	let words = transcript.split(' ')
-	for (let menu of menus) {
-		for (let i_word in words) {
-			if (words[i_word].includes(menu.name)) {
-				// Found menu
-				const selectedMenu = {
-					id: menu._id,
-					name: menu.name,
-					price: menu.price,
-					number: 1
-				}
-				selectedMenus.push(selectedMenu)
+	let middleWords = []
+	let i_word = 0
+	while (i_word < words.length) {
+		let hasFound = false
+		for (let menu of menus) {
+			let menuName = menu.name.split(' ').join('')
+			let selectedMenu = {
+				id: menu._id,
+				name: menu.name,
+				price: menu.price,
+				number: 1
+			}
 
-				// Delete the word from the array
-				words[i_word] = words[words.length - 1]
-				words.pop()
+			// Check if the menuName starts with the word
+			let i_word_ori = i_word
+			hasFound = false
+			while (menuName.indexOf(words[i_word]) >= 0) {
+				menuName = menuName.replace(words[i_word], '')
+				if (menuName.length == 0) {
+					hasFound = true
+					break
+				}
+
+				i_word++
+			}
+			if (words[i_word].indexOf(menuName) >= 0) {
+				hasFound = true
+			}
+
+			if (!hasFound) {
+				i_word = i_word_ori
+			} else {
+				// Found the menu
+				// Get the numbers of last added order
+				if (selectedMenus.length && middleWords.length) {
+					const numOfLastMenu = getMenuNumber(middleWords)
+					selectedMenus[selectedMenus.length - 1].number = numOfLastMenu
+				}
+				middleWords = []
+
+				selectedMenus.push(selectedMenu)
+				break
 			}
 		}
+
+		if (!hasFound) {
+			middleWords.push(words[i_word])
+		}
+		i_word++
 	}
 
 	// Check if found any menus
 	if (selectedMenus.length) {
 		// Success
+		// Get the numbers of last added order
+		if (middleWords.length) {
+			const numOfLastMenu = getMenuNumber(middleWords)
+			selectedMenus[selectedMenus.length - 1].number = numOfLastMenu
+		}
+
 		// Create and return the order
 		const userId = conversation.userId
 		const totalPrice = calculateTotalPrice(selectedMenus)
@@ -210,6 +249,24 @@ const makeVoice = async (fileName, text) => {
 	await unlink(filePath)
 
 	return true
+}
+
+// Get the number from arry of words
+const getMenuNumber = (words) => {
+	for (const word of words) {
+		const parsedNumber = parseInt(word)
+		if (parsedNumber) {
+			return parsedNumber
+		}
+
+		for (const number_word in NUMBERS_DICT) {
+			if (word.includes(number_word)) {
+				return NUMBERS_DICT[number_word]
+			}
+		}
+	}
+
+	return 1
 }
 
 const calculateTotalPrice = (menus) => {
