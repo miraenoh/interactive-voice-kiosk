@@ -1,5 +1,5 @@
 <template>
-	<vs-table striped class="admin-menus-table">
+	<vs-table striped class="menus-table">
 		<template #header>
 			<vs-row justify="center">
 				<h3>{{ menuGroup.name }}</h3>
@@ -143,11 +143,11 @@ h3 {
 </style>
 
 <style>
-.admin-menus-table .vs-table__header {
+.menus-table .vs-table__header {
 	background: rgba(var(--vs-gray-1), 1);
 }
 
-.admin-menus-table input {
+.menus-table input {
 	height: 2.5rem;
 }
 

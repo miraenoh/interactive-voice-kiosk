@@ -76,7 +76,7 @@
 							<h2>메뉴 관리</h2>
 							<vs-button shadow icon @click="getMenuGroups"><i class="bx bx-refresh"/></vs-button>
 						</vs-row>
-						<vs-table class="my-small-card admin-menus-table">
+						<vs-table class="my-small-card menus-table">
 							<template #header>
 								<vs-row justify="center">
 									<h3>카테고리 생성</h3>
@@ -91,7 +91,7 @@
 								</vs-row>
 							</template>
 						</vs-table>
-						<my-admin-menus
+						<my-menus-table
 							v-for="menuGroup in menuGroups"
 							:key="menuGroup._id"
 							:menuGroup="menuGroup"
@@ -122,14 +122,14 @@
 import axios from 'axios'
 
 import Receipt from '../components/Receipt'
-import AdminMenus from '../components/AdminMenus'
+import MenusTable from '../components/MenusTable'
 
 const endpoint = process.env.VUE_APP_API_ENDPOINT
 
 export default {
 	components: {
 		myReceipt: Receipt,
-		myAdminMenus: AdminMenus
+		myMenusTable: MenusTable
 	},
 	data: function() {
 		return {
