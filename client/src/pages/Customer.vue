@@ -26,24 +26,33 @@
 			<my-receipt :order="dialogData" />
 		</vs-dialog>
 		<div class="bottomRight">
-			<my-recorder
-				@recordDone="proceedConversation"
-				v-if="conversation.isRecording"
-				:fileName="conversation.id"
-			/>
-			<vs-avatar
-				class="my-bot-avatar"
-				@click="handleClick"
-				circle
-				:primary="!conversation.isRecording"
-				:color="conversation.isRecording ? '#dddddd' : null"
-				size="110"
-				:loading="conversation.isWaiting"
-				:badge="conversation.isWriting"
-				:writing="conversation.isWriting"
+			<div
+				v-if="transcript.length"
+				class="my-transcript container my-small-card"
+				@click="transcript = ''"
 			>
-				<i class="bx bxs-bot"></i>
-			</vs-avatar>
+				{{ transcript }}
+			</div>
+			<div class="center">
+				<my-recorder
+					@recordDone="proceedConversation"
+					v-if="conversation.isRecording"
+					:fileName="conversation.id"
+				/>
+				<vs-avatar
+					class="my-bot-avatar"
+					@click="handleClick"
+					circle
+					:primary="!conversation.isRecording"
+					:color="conversation.isRecording ? '#dddddd' : null"
+					size="110"
+					:loading="conversation.isWaiting"
+					:badge="conversation.isWriting"
+					:writing="conversation.isWriting"
+				>
+					<i class="bx bxs-bot"></i>
+				</vs-avatar>
+			</div>
 		</div>
 	</div>
 </template>
@@ -77,6 +86,7 @@ export default {
 				isWaiting: false,
 				isRecording: false
 			},
+			transcript: '',
 			dialog: false,
 			dialogData: {}
 		}
@@ -143,6 +153,7 @@ export default {
 			})
 			this.conversation.success = res.data.success
 			this.conversation.hasFinished = res.data.hasFinished
+			this.transcript = res.data.transcript
 
 			// Check if the conversation has finished
 			if (this.conversation.hasFinished == true) {
@@ -151,6 +162,8 @@ export default {
 				this.conversation.order = res.data.order
 			}
 			this.conversation.isWaiting = false
+
+			// Show the recognized transcript
 
 			// Play the bot voice from the response
 			this.conversation.isWriting = true
@@ -210,6 +223,18 @@ h1 {
 
 .my-bot-avatar i {
 	font-size: 4rem !important;
+}
+
+.my-transcript {
+	cursor: pointer;
+	margin-bottom: 0.5rem;
+	max-width: 250px;
+}
+
+.bottomRight {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
 }
 
 @media (min-width: 900px) {

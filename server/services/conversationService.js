@@ -92,6 +92,7 @@ const processOrder = async (conversation, cb) => {
 		// Return the res with order data
 		result.hasFinished = true
 		result.order = orderData
+		result.transcript = transcript
 		return cb(result)
 	} else {
 		// Failed to create the order
