@@ -9,6 +9,11 @@
 							<h2>진행중인 주문</h2>
 							<vs-button shadow icon @click="getOrders"><i class="bx bx-refresh"/></vs-button>
 						</vs-row>
+						<vs-row class="container my-small-card" justify="center" v-if="!orders.length">
+							<p>
+								진행중인 주문이 없습니다.
+							</p>
+						</vs-row>
 						<div
 							v-for="order in orders"
 							:key="order._id"
