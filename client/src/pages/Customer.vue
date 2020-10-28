@@ -1,5 +1,5 @@
 <template>
-	<div class="grid">
+	<div class="grid" @dblclick="playExplanation">
 		<audio ref="audio" @ended="handleAfterAudio"></audio>
 		<vs-row justify="center">
 			<vs-col lg="7" sm="9" xs="11">
@@ -7,8 +7,9 @@
 					{{ user.storeName }}
 				</h1>
 				<vs-row class="container">
-					<vs-row class="my-description-text" justify="center">
-						메뉴를 고른 뒤 버튼을 눌러 주문하세요.
+					<vs-row class="my-description-text center" justify="center">
+						메뉴를 고른 뒤 버튼을 눌러 주문하세요.<br />
+						화면을 더블클릭하면 메뉴 설명이 재생됩니다.
 					</vs-row>
 					<vs-col
 						class="my-menu-col"
@@ -110,6 +111,10 @@ export default {
 				this.startConversation()
 			}
 		},
+		// Play the menus explanation voice
+		playExplanation() {
+			alert('play')
+		},
 		async startConversation() {
 			// Start a conversation with the bot
 			this.conversation.isWaiting = true
@@ -175,7 +180,15 @@ export default {
 			this.dialogData = this.conversation.order
 			this.dialog = true
 
-			this.resetConversation()
+			// Delete the voice file from GCS
+			axios
+				.delete(endpoint + '/api/conversation/voice', { params: { convId: this.conversation.id } })
+				.then((res) => {
+					this.resetConversation()
+				})
+				.catch((err) => {
+					this.resetConversation()
+				})
 		},
 		createReceiptScript() {
 			const content = {}
@@ -240,6 +253,10 @@ h1 {
 @media (min-width: 900px) {
 	.my-menu-col {
 		padding: 0 0.5rem;
+	}
+
+	br {
+		display: none;
 	}
 }
 </style>
