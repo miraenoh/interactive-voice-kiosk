@@ -106,6 +106,7 @@ const processOrder = async (conversation, cb) => {
 	}
 }
 
+// Create the order information by analizing the trascript
 const createOrder = async (transcript, conversation) => {
 	// Load the store's data from mongodb
 	const menus = await Menu.find({ userId: conversation.userId }).exec()
@@ -113,23 +114,40 @@ const createOrder = async (transcript, conversation) => {
 	// Find ordered menus
 	let selectedMenus = []
 	let words = transcript.split(' ')
-	for (let menu of menus) {
-		for (let i_word in words) {
-			if (words[i_word].includes(menu.name)) {
-				// Found menu
-				const selectedMenu = {
-					id: menu._id,
-					name: menu.name,
-					price: menu.price,
-					number: 1
-				}
-				selectedMenus.push(selectedMenu)
+	let i_word = 0
+	while (i_word < words.length) {
+		for (let menu of menus) {
+			let menuName = menu.name.split(' ').join('')
+			let selectedMenu = {
+				id: menu._id,
+				name: menu.name,
+				price: menu.price,
+				number: 1
+			}
 
-				// Delete the word from the array
-				words[i_word] = words[words.length - 1]
-				words.pop()
+			// Check if the menuName starts with the word
+			const i_word_ori = i_word
+			let hasFound = false
+			while (menuName.indexOf(words[i_word]) >= 0) {
+				menuName = menuName.replace(words[i_word], '')
+				if (menuName.length == 0) {
+					hasFound = true
+					break
+				}
+
+				i_word++
+			}
+
+			if (!hasFound) {
+				i_word = i_word_ori
+			} else {
+				// Found the menu
+				selectedMenus.push(selectedMenu)
+				break
 			}
 		}
+
+		i_word++
 	}
 
 	// Check if found any menus
