@@ -3,7 +3,8 @@ const AUDIO_ENCODING = 'LINEAR16'
 
 module.exports = {
 	TOKEN_KEY: 'secretToken',
-	TOKEN_EXP_SECS: 86400, // a day
+	TOKEN_EXP_SECS: 3600, // an hour
+	CONV_EXP_SECS: 3600, // an hour
 	TTS: {
 		VOICE_CONFIG: {
 			languageCode: LANG_CODE,
