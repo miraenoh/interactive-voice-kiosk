@@ -2,7 +2,11 @@ const express = require('express')
 const router = express.Router()
 
 const { Conversation } = require('../models/Conversation')
+
 const conversationService = require('../services/conversationService')
+const gcStorageService = require('../services/gcStorageService')
+
+const GC_STORAGE = require('../constants').GC_STORAGE
 
 // Start the conversation with the bot
 router.get('/start', (req, res) => {
@@ -40,6 +44,13 @@ router.post('/proceed', (req, res) => {
 					.json({ id: conversation._id, success: false, message: 'Invalid conversation status.' })
 		}
 	})
+})
+
+// Delete the bot voice after the conversation has finished
+router.delete('/voice', (req, res) => {
+	gcStorageService.deleteFile(GC_STORAGE.BUCKET_NAME_BOT, req.query.convId + GC_STORAGE.FILE_FORMAT)
+
+	return res.status(200).json({success: true})
 })
 
 module.exports = router

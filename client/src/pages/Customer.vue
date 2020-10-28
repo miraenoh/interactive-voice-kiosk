@@ -1,14 +1,16 @@
 <template>
-	<div class="grid">
+	<div class="grid" @dblclick="playExplanation">
 		<audio ref="audio" @ended="handleAfterAudio"></audio>
+		<audio ref="audio-explain" @ended="resetExplanation"></audio>
 		<vs-row justify="center">
 			<vs-col lg="7" sm="9" xs="11">
 				<h1 class="center">
 					{{ user.storeName }}
 				</h1>
 				<vs-row class="container">
-					<vs-row class="my-description-text" justify="center">
-						메뉴를 고른 뒤 버튼을 눌러 주문하세요.
+					<vs-row class="my-description-text center" justify="center">
+						메뉴를 고른 뒤 버튼을 눌러 주문하세요.<br />
+						화면 더블클릭시 메뉴 설명이 재생·정지됩니다.
 					</vs-row>
 					<vs-col
 						class="my-menu-col"
@@ -88,7 +90,8 @@ export default {
 			},
 			transcript: '',
 			dialog: false,
-			dialogData: {}
+			dialogData: {},
+			isPlayingExplain: false
 		}
 	},
 	async mounted() {
@@ -102,13 +105,40 @@ export default {
 		res = await axios.get(endpoint + '/api/menu/group/by-user', { params: { userId: this.id } })
 		this.menuGroups = res.data
 
+		// Set the menus explanation voice file url
+		this.$refs['audio-explain'].src = gcsUrl + 'explain-menus-' + this.user.name + '.wav'
+
 		loading.close()
 	},
 	methods: {
 		async handleClick() {
+			this.stopExplanation()
+
 			if (!this.conversation.id) {
 				this.startConversation()
 			}
+		},
+		// Play the menus explanation voice
+		playExplanation() {
+			if (!this.isPlayingExplain && !this.conversation.isWriting) {
+				// Play the voice
+				this.isPlayingExplain = true
+				this.$refs['audio-explain'].play()
+			} else {
+				// Now playing. stop the voice
+				this.stopExplanation()
+			}
+		},
+		// Stop the menus explanation voice
+		stopExplanation() {
+			this.isPlayingExplain = false
+			this.$refs['audio-explain'].pause()
+			this.$refs['audio-explain'].currentTime = 0
+		},
+		// Reset the menus explanation voice state after finish playing
+		resetExplanation() {
+			this.isPlayingExplain = false
+			this.$refs['audio-explain'].currentTime = 0
 		},
 		async startConversation() {
 			// Start a conversation with the bot
@@ -175,7 +205,15 @@ export default {
 			this.dialogData = this.conversation.order
 			this.dialog = true
 
-			this.resetConversation()
+			// Delete the voice file from GCS
+			axios
+				.delete(endpoint + '/api/conversation/voice', { params: { convId: this.conversation.id } })
+				.then((res) => {
+					this.resetConversation()
+				})
+				.catch((err) => {
+					this.resetConversation()
+				})
 		},
 		createReceiptScript() {
 			const content = {}
@@ -240,6 +278,10 @@ h1 {
 @media (min-width: 900px) {
 	.my-menu-col {
 		padding: 0 0.5rem;
+	}
+
+	br {
+		display: none;
 	}
 }
 </style>
