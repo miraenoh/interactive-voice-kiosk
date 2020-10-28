@@ -47,6 +47,11 @@ h3 {
 	padding: 1rem;
 }
 
+.my-small-card {
+	border: 3px solid rgba(var(--vs-gray-3), 1);
+	margin: 1rem 0;
+}
+
 .vs-table table {
 	min-width: 100px;
 }

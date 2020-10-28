@@ -95,6 +95,7 @@
 							v-for="menuGroup in menuGroups"
 							:key="menuGroup._id"
 							:menuGroup="menuGroup"
+							:isAdmin="true"
 							class="my-small-card"
 							@delete="deleteMenuGroup(menuGroup._id)"
 						/>
@@ -315,11 +316,6 @@ export default {
 
 .my-container-footer i {
 	margin-right: 0.2rem;
-}
-
-.my-small-card {
-	border: 3px solid rgba(var(--vs-gray-3), 1);
-	margin: 1rem 0;
 }
 
 .my-receipt {

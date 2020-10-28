@@ -9,19 +9,19 @@
 			<vs-tr>
 				<vs-th>이름</vs-th>
 				<vs-th>가격</vs-th>
-				<vs-th></vs-th>
+				<vs-th v-if="isAdmin"></vs-th>
 			</vs-tr>
 		</template>
 		<template #tbody>
 			<!-- New menu row -->
-			<vs-tr>
+			<vs-tr v-if="isAdmin">
 				<vs-td>
 					<vs-input class="my-input-name" v-model="newMenu.name" placeholder="이름" />
 				</vs-td>
 				<vs-td>
 					<vs-input class="my-input-price" v-model="newMenu.price" placeholder="가격" />
 				</vs-td>
-				<vs-td>
+				<vs-td v-if="isAdmin">
 					<vs-row justify="flex-end">
 						<vs-button icon circle success @click="addMenu">
 							<i class="bx bx-plus" />
@@ -30,7 +30,7 @@
 				</vs-td>
 			</vs-tr>
 			<!-- Delete menuGroup row -->
-			<vs-tr v-if="!menus.length">
+			<vs-tr v-if="isAdmin && !menus.length">
 				<vs-td>카테고리 삭제</vs-td>
 				<vs-td></vs-td>
 				<vs-td>
@@ -44,7 +44,7 @@
 			<vs-tr v-for="menu in menus" :key="menu._id">
 				<vs-td>{{ menu.name }}</vs-td>
 				<vs-td>{{ menu.price }}</vs-td>
-				<vs-td>
+				<vs-td v-if="isAdmin">
 					<vs-row justify="flex-end">
 						<vs-button icon circle danger @click="deleteMenu(menu._id)">
 							<i class="bx bxs-trash" />
@@ -63,9 +63,8 @@ const endpoint = process.env.VUE_APP_API_ENDPOINT
 
 export default {
 	props: {
-		menuGroup: {
-			type: Object
-		}
+		menuGroup: Object,
+		isAdmin: Boolean
 	},
 	data: function() {
 		return {
