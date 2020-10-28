@@ -29,7 +29,7 @@
 		</vs-dialog>
 		<div class="bottomRight">
 			<div
-				v-if="transcript.length"
+				v-if="transcript && transcript.length"
 				class="my-transcript container my-small-card"
 				@click="transcript = ''"
 			>

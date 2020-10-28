@@ -56,7 +56,7 @@ const processOrder = async (conversation, cb) => {
 
 	// Recognize the user's voice
 	const transcript = await recognizeVoice(conversation._id)
-	console.log(transcript)
+	result.transcript = transcript
 
 	// Check if suceeded to recognize
 	if (!transcript || !transcript.length) {
@@ -72,6 +72,7 @@ const processOrder = async (conversation, cb) => {
 	}
 
 	// Try creating the order with the transcript
+	console.log('User: ' + transcript)
 	const orderData = await createOrder(transcript, conversation)
 	if (orderData) {
 		// Succeeded to create the order
@@ -92,7 +93,6 @@ const processOrder = async (conversation, cb) => {
 		// Return the res with order data
 		result.hasFinished = true
 		result.order = orderData
-		result.transcript = transcript
 		return cb(result)
 	} else {
 		// Failed to create the order
@@ -123,7 +123,10 @@ const deleteOldConversations = async () => {
 					await Conversation.deleteOne({ _id: convId })
 
 					// Remove the voice file from GCS
-					await gcStorageService.deleteFile(GC_STORAGE.BUCKET_NAME_BOT, convId + GC_STORAGE.FILE_FORMAT)
+					await gcStorageService.deleteFile(
+						GC_STORAGE.BUCKET_NAME_BOT,
+						convId + GC_STORAGE.FILE_FORMAT
+					)
 					console.log(`conversation ${convId} has been removed.`)
 				}
 			}
