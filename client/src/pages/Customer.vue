@@ -2,40 +2,22 @@
 	<div class="grid">
 		<audio ref="audio" @ended="handleAfterAudio"></audio>
 		<vs-row justify="center">
-			<vs-col lg="6" sm="9" xs="11">
+			<vs-col lg="7" sm="9" xs="11">
 				<h1 class="center">
 					{{ user.storeName }}
 				</h1>
-				<vs-row>
-					<vs-col w="12">
-						<div class="container">
-							<vs-table v-if="user">
-								<template #thead>
-									<vs-tr>
-										<vs-th>
-											메뉴판
-										</vs-th>
-										<vs-th> </vs-th>
-									</vs-tr>
-								</template>
-								<template #tbody>
-									<vs-tr>
-										<vs-td>메뉴를 고른 뒤 버튼을 눌러 주문하세요.</vs-td>
-										<vs-td> </vs-td>
-									</vs-tr>
-									<vs-tr v-for="menu in menuViews" :key="menu.id" :class="menu.class">
-										<vs-td>
-											{{ menu.name }}
-										</vs-td>
-										<vs-td class="right">
-											{{ menu.price }}
-										</vs-td>
-									</vs-tr>
-								</template>
-							</vs-table>
-							<p v-else>존재하지 않는 가게입니다.</p>
-						</div>
-						<div class="bottom-intent"></div>
+				<vs-row class="container">
+					<vs-row class="my-description-text" justify="center">
+						메뉴를 고른 뒤 버튼을 눌러 주문하세요.
+					</vs-row>
+					<vs-col
+						class="my-menu-col"
+						v-for="menuGroup in menuGroups"
+						:key="menuGroup._id"
+						w="6"
+						sm="12"
+					>
+						<my-menus-table :menuGroup="menuGroup" :isAdmin="false" class="my-small-card" />
 					</vs-col>
 				</vs-row>
 			</vs-col>
@@ -69,6 +51,7 @@
 <script>
 import axios from 'axios'
 
+import MenusTable from '../components/MenusTable'
 import Recorder from '../components/Recorder'
 import Receipt from '../components/Receipt'
 
@@ -77,6 +60,7 @@ const endpoint = process.env.VUE_APP_API_ENDPOINT
 
 export default {
 	components: {
+		myMenusTable: MenusTable,
 		myRecorder: Recorder,
 		myReceipt: Receipt
 	},
@@ -84,9 +68,7 @@ export default {
 	data: function() {
 		return {
 			user: {},
-			menus: [],
 			menuGroups: [],
-			menuViews: [],
 			conversation: {
 				id: null,
 				success: false,
@@ -106,29 +88,13 @@ export default {
 		let res = await axios.get(endpoint + '/api/user', { params: { id: this.id } })
 		this.user = res.data
 
-		// Get all menus and menuGroups by userId
-		res = await axios.get(endpoint + '/api/menu/by-user', { params: { userId: this.id } })
-		this.menus = res.data
+		// Get all menuGroups by userId
 		res = await axios.get(endpoint + '/api/menu/group/by-user', { params: { userId: this.id } })
 		this.menuGroups = res.data
-
-		this.createMenuView()
 
 		loading.close()
 	},
 	methods: {
-		createMenuView() {
-			let group, menu
-			for (group of this.menuGroups) {
-				group.class = 'my-header'
-				this.menuViews.push(group)
-				for (menu of this.menus) {
-					if (menu.groupId === group._id) {
-						this.menuViews.push(menu)
-					}
-				}
-			}
-		},
 		async handleClick() {
 			if (!this.conversation.id) {
 				this.startConversation()
@@ -220,8 +186,7 @@ export default {
 				isWaiting: false,
 				isRecording: false
 			}
-		},
-		playAudio() {}
+		}
 	}
 }
 </script>
@@ -229,23 +194,32 @@ export default {
 h1 {
 	font-size: 3rem;
 }
+
+.container {
+	margin-bottom: 1.5rem;
+}
+
+.my-description-text {
+	margin: 0.5rem 0;
+}
+
 .my-bot-avatar {
 	cursor: pointer;
 	margin-top: 0.5rem;
 }
+
 .my-bot-avatar i {
 	font-size: 4rem !important;
 }
-.my-header {
-	background-color: rgba(var(--vs-gray-2), 1);
-	font-weight: bold;
-}
-div.bottom-intent {
-	height: 100px;
+
+@media (min-width: 900px) {
+	.my-menu-col {
+		padding: 0 0.5rem;
+	}
 }
 </style>
 <style>
-.my-dialog .vs-dialog__content {
+.my-dialog .vs-dialog__content.notFooter {
 	margin-bottom: 0;
 }
 </style>
