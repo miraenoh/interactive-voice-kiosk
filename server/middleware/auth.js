@@ -7,9 +7,6 @@ let auth = (req, res, next) => {
 	if (!token) {
 		token = req.headers.x_auth
 	}
-	console.log(req.cookies)
-	console.log(req.headers.x_auth)
-	console.log('\n')
 
 	// Decode the token and find the user
 	User.findByToken(token, (err, user) => {
