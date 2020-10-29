@@ -4,7 +4,12 @@ let auth = (req, res, next) => {
 	// Process authentication
 	// Get a token from the client cookies
 	let token = req.cookies.x_auth
-	console.log('token: ', token)
+	if (!token) {
+		token = req.headers.x_auth
+	}
+	console.log(req.cookies)
+	console.log(req.headers.x_auth)
+	console.log('\n')
 
 	// Decode the token and find the user
 	User.findByToken(token, (err, user) => {

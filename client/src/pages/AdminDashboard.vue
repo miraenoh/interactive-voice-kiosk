@@ -185,7 +185,10 @@ export default {
 
 			// Get incomplete orders
 			axios
-				.get(endpoint + '/api/order/store/incomplete', { withCredentials: true })
+				.get(endpoint + '/api/order/store/incomplete', {
+					withCredentials: true,
+					headers: { x_auth: $cookies.get('x_auth') }
+				})
 				.then((res) => {
 					this.orders = res.data.reverse()
 				})
@@ -196,7 +199,10 @@ export default {
 
 			// Get complete orders
 			axios
-				.get(endpoint + '/api/order/store/complete', { withCredentials: true })
+				.get(endpoint + '/api/order/store/complete', {
+					withCredentials: true,
+					headers: { x_auth: $cookies.get('x_auth') }
+				})
 				.then((res) => {
 					this.completeOrders = res.data.reverse()
 				})
@@ -207,7 +213,10 @@ export default {
 		},
 		getMenuGroups() {
 			axios
-				.get(endpoint + '/api/menu/group/store', { withCredentials: true })
+				.get(endpoint + '/api/menu/group/store', {
+					withCredentials: true,
+					headers: { x_auth: $cookies.get('x_auth') }
+				})
 				.then((res) => {
 					this.menuGroups = res.data
 				})
@@ -219,7 +228,11 @@ export default {
 		completeOrder(orderId) {
 			// Call order complete endpoint
 			axios
-				.post(endpoint + '/api/order/complete', { orderId: orderId }, { withCredentials: true })
+				.post(
+					endpoint + '/api/order/complete',
+					{ orderId: orderId },
+					{ withCredentials: true, headers: { x_auth: $cookies.get('x_auth') } }
+				)
 				.then((res) => {
 					if (res.data.success) {
 						this.getOrders()
@@ -235,7 +248,11 @@ export default {
 		inCompleteOrder(orderId) {
 			// Call order incomplete endpoint
 			axios
-				.post(endpoint + '/api/order/incomplete', { orderId: orderId }, { withCredentials: true })
+				.post(
+					endpoint + '/api/order/incomplete',
+					{ orderId: orderId },
+					{ withCredentials: true, headers: { x_auth: $cookies.get('x_auth') } }
+				)
 				.then((res) => {
 					if (res.data.success) {
 						this.getOrders()
@@ -251,7 +268,11 @@ export default {
 		deleteOrder(orderId) {
 			// Call order delete endpoint
 			axios
-				.delete(endpoint + '/api/order', { withCredentials: true, params: { orderId: orderId } })
+				.delete(endpoint + '/api/order', {
+					withCredentials: true,
+					headers: { x_auth: $cookies.get('x_auth') },
+					params: { orderId: orderId }
+				})
 				.then((res) => {
 					if (res.data.success) {
 						this.getOrders()
@@ -267,7 +288,10 @@ export default {
 		deleteAllCompleteOrders() {
 			// Call order all complete delete endpoint
 			axios
-				.delete(endpoint + '/api/order/store/all/complete', { withCredentials: true })
+				.delete(endpoint + '/api/order/store/all/complete', {
+					withCredentials: true,
+					headers: { x_auth: $cookies.get('x_auth') }
+				})
 				.then((res) => {
 					if (res.data.success) {
 						this.getOrders()
@@ -324,7 +348,11 @@ export default {
 		createExplanation() {
 			const loading = this.$vs.loading()
 			axios
-				.post(endpoint + '/api/explanation', {}, { withCredentials: true })
+				.post(
+					endpoint + '/api/explanation',
+					{},
+					{ withCredentials: true, headers: { x_auth: $cookies.get('x_auth') } }
+				)
 				.then((res) => {
 					loading.close()
 
@@ -342,7 +370,11 @@ export default {
 		},
 		toggleIsOpen() {
 			axios
-				.post(endpoint + '/api/user/isopen', {}, { withCredentials: true })
+				.post(
+					endpoint + '/api/user/isopen',
+					{},
+					{ withCredentials: true, headers: { x_auth: $cookies.get('x_auth') } }
+				)
 				.then((res) => {
 					this.$store.state.adminUser.isOpen = res.data.isOpen
 				})
