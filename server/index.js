@@ -6,6 +6,7 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
+const cron = require('node-cron')
 
 const config = require('./config/key')
 
@@ -29,14 +30,23 @@ mongoose
 		console.log(err)
 	})
 
+// Run scheduled task: deleteOldConversations
+// Every hour
+const deleteOldConversations = require('./services/conversationService').deleteOldConversations
+cron.schedule('0 * * * *', () => {
+	deleteOldConversations()
+})
+
 // Enalbe CORS
-app.use(cors())
+app.use(cors({ origin: true, credentials: true }))
 
 // Configure routers
 app.use('/api/user', require('./routes/user'))
 app.use('/api/menu', require('./routes/menu'))
 app.use('/api/conversation', require('./routes/conversation'))
 app.use('/api/file', require('./routes/file'))
+app.use('/api/order', require('./routes/order'))
+app.use('/api/explanation', require('./routes/explanation'))
 
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`)

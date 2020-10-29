@@ -3,7 +3,8 @@ const AUDIO_ENCODING = 'LINEAR16'
 
 module.exports = {
 	TOKEN_KEY: 'secretToken',
-	TOKEN_EXP_SECS: 86400, // a day
+	TOKEN_EXP_SECS: 3600, // an hour
+	CONV_EXP_SECS: 3600, // an hour
 	TTS: {
 		VOICE_CONFIG: {
 			languageCode: LANG_CODE,
@@ -18,7 +19,7 @@ module.exports = {
 		CONFIG: {
 			encoding: AUDIO_ENCODING,
 			languageCode: LANG_CODE,
-			enableAutomaticPunctuation: true
+			enableAutomaticPunctuation: false
 		},
 		GCS_URI: 'gs://voice-user/'
 	},
@@ -33,5 +34,20 @@ module.exports = {
 		RECOG_FAILED: '죄송합니다. 알아 듣지 못했어요. 다시 말씀해주세요.',
 		ORDER_FAILED: '말씀하신 내용으로는 주문할 수 없어요. 다시 주문해주세요.',
 		ORDER_RECEIVED: '주문이 접수되었습니다.'
+	},
+	NUMBERS_DICT: {
+		하나: 1,
+		한: 1,
+		두: 2,
+		둘: 2,
+		세: 3,
+		셋: 3,
+		네: 4,
+		넷: 4,
+		다섯: 5,
+		여섯: 6,
+		일곱: 7,
+		여덟: 8,
+		아홉: 9
 	}
 }

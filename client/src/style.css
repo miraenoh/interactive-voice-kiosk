@@ -4,10 +4,22 @@
 
 :root {
 	--my-lightgray: #f1f1f1;
+	--my-text: rgb(30, 30, 30);
 }
 
 body {
-    font-family: 'Noto Sans KR';
+	font-family: 'Noto Sans KR';
+	margin: 0;
+	background: rgba(var(--vs-gray-2), 1);
+	color: var(--my-text);
+	cursor: default;
+}
+
+h1,
+h2,
+h3 {
+	font-family: 'Jua';
+	font-weight: normal;
 }
 
 .center {
@@ -15,7 +27,7 @@ body {
 }
 
 .right {
-    text-align: end;
+	text-align: end;
 }
 
 .bottomRight {
@@ -27,6 +39,17 @@ body {
 
 .floatRight {
 	float: right;
+}
+
+.container {
+	background-color: white;
+	border-radius: 1rem;
+	padding: 1rem;
+}
+
+.my-small-card {
+	border: 3px solid rgba(var(--vs-gray-3), 1);
+	margin: 1rem 0;
 }
 
 .vs-table table {

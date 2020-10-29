@@ -11,12 +11,29 @@ router.get('/hello', (req, res) => {
 
 // Registration endpoint
 router.post('/register', (req, res) => {
-	// Get info for registration from the client
-	const user = new User(req.body)
+	// Check if the requested info is valid
+	const userInfo = req.body
+	if (userInfo.name.length < 4) {
+		return res.json({ success: false, message: '아이디는 4자 이상이어야 합니다.' })
+	}
+	if (userInfo.password.length < 5) {
+		return res.json({ success: false, message: '비밀번호는 5자 이상이어야 합니다.' })
+	}
 
-	// Save info into mongodb
-	user.save((err, user) => {
-		return handlerService.responseHandler(res, err, user)
+	// Check if the id already exists
+	User.findOne({ name: userInfo.name }, (err, user) => {
+		if (user) {
+			return res.json({ success: false, message: '이미 존재하는 아이디입니다.' })
+		} else {
+			// User not exists. Make the new user
+			// Make the user info from the data
+			const user = new User(userInfo)
+
+			// Save info into mongodb
+			user.save((err, user) => {
+				return handlerService.responseHandler(res, err, user)
+			})
+		}
 	})
 })
 
@@ -49,10 +66,21 @@ router.post('/login', (req, res) => {
 				// Save the token into cookies and send the response
 				res.cookie('x_auth', user.token).status(200).json({
 					success: true,
-					userId: user._id
+					userId: user._id,
+					name: user.name,
+					storeName: user.storeName,
+					isOpen: user.isOpen,
+					x_auth: user.token
 				})
 			})
 		})
+	})
+})
+
+// Toggle the user's isOpen prop
+router.post('/isopen', auth, (req, res) => {
+	User.updateOne({ _id: req.user._id }, { isOpen: !req.user.isOpen }, (err, raw) => {
+		return handlerService.responseDataHandler(res, err, { isOpen: !req.user.isOpen })
 	})
 })
 
@@ -61,7 +89,8 @@ router.get('/auth', auth, (req, res) => {
 		_id: req.user._id,
 		isAuth: true,
 		name: req.user.name,
-		storeName: req.user.storeName
+		storeName: req.user.storeName,
+		isOpen: req.user.isOpen
 	})
 })
 
@@ -73,9 +102,13 @@ router.get('/logout', auth, (req, res) => {
 
 // Get userInfo by username
 router.get('/', (req, res) => {
-	User.findOne({name: req.query.id}, {_id: 0, name: 1, storeName: 1}, (err, user) => {
-		return handlerService.responseDataHandler(res, err, user)
-	})
+	User.findOne(
+		{ name: req.query.id },
+		{ _id: 0, name: 1, storeName: 1, isOpen: 1 },
+		(err, user) => {
+			return handlerService.responseDataHandler(res, err, user)
+		}
+	)
 })
 
 module.exports = router

@@ -1,64 +1,63 @@
 <template>
-	<div class="grid">
+	<div class="grid" @dblclick="playExplanation">
 		<audio ref="audio" @ended="handleAfterAudio"></audio>
+		<audio ref="audio-explain" @ended="resetExplanation"></audio>
 		<vs-row justify="center">
-			<vs-col lg="6" sm="9" xs="11">
+			<vs-col lg="7" sm="9" xs="11">
 				<h1 class="center">
 					{{ user.storeName }}
 				</h1>
-				<vs-row>
-					<vs-col w="12">
-						<div class="container">
-							<vs-table v-if="user">
-								<template #thead>
-									<vs-tr>
-										<vs-th>
-											메뉴판
-										</vs-th>
-										<vs-th> </vs-th>
-									</vs-tr>
-								</template>
-								<template #tbody>
-									<vs-tr>
-										<vs-td>메뉴를 고른 뒤 버튼을 눌러 주문하세요.</vs-td>
-										<vs-td> </vs-td>
-									</vs-tr>
-									<vs-tr v-for="menu in menuViews" :key="menu.id" :class="menu.class">
-										<vs-td>
-											{{ menu.name }}
-										</vs-td>
-										<vs-td class="right">
-											{{ menu.price }}
-										</vs-td>
-									</vs-tr>
-								</template>
-							</vs-table>
-							<p v-else>존재하지 않는 가게입니다.</p>
-						</div>
-						<div class="bottom-intent"></div>
+				<vs-row class="container" v-if="user.isOpen">
+					<vs-row class="my-description-text center" justify="center">
+						메뉴를 고른 뒤 버튼을 눌러 주문하세요.<br />
+						화면 더블클릭시 메뉴 설명이 재생·정지됩니다.
+					</vs-row>
+					<vs-col
+						class="my-menu-col"
+						v-for="menuGroup in menuGroups"
+						:key="menuGroup._id"
+						w="6"
+						sm="12"
+					>
+						<my-menus-table :menuGroup="menuGroup" :isAdmin="false" class="my-small-card" />
 					</vs-col>
+				</vs-row>
+				<vs-row class="container" justify="center" v-else>
+					현재 영업 종료 상태입니다.
 				</vs-row>
 			</vs-col>
 		</vs-row>
-		<my-receipt v-if="dialog" :dialog="dialog" :conversation="dialogData" />
-		<div class="bottomRight">
-			<my-recorder
-				@recordDone="proceedConversation"
-				v-if="conversation.isRecording"
-				:fileName="conversation.id"
-			/>
-			<vs-avatar
-				@click="handleClick"
-				circle
-				:primary="!conversation.isRecording"
-				:color="conversation.isRecording ? '#dddddd' : null"
-				size="110"
-				:loading="conversation.isWaiting"
-				:badge="conversation.isWriting"
-				:writing="conversation.isWriting"
+		<vs-dialog class="my-dialog" v-model="dialog">
+			<my-receipt :order="dialogData" />
+		</vs-dialog>
+		<div class="bottomRight" v-if="user.isOpen">
+			<div
+				v-if="transcript && transcript.length"
+				class="my-transcript container my-small-card"
+				@click="transcript = ''"
 			>
-				<i class="bx bxs-bot"></i>
-			</vs-avatar>
+				{{ transcript }}
+			</div>
+			<div class="center">
+				<my-recorder
+					@recordDone="proceedConversation"
+					v-if="conversation.isRecording"
+					:fileName="conversation.id"
+				/>
+				<vs-avatar
+					class="my-bot-avatar"
+					@click="handleClick"
+					circle
+					:primary="!conversation.isRecording"
+					:color="conversation.isRecording ? '#dddddd' : null"
+					size="110"
+					:loading="conversation.isWaiting"
+					:badge="conversation.isWriting"
+					:writing="conversation.isWriting"
+				>
+					<i class="bx bxs-bot"></i>
+				</vs-avatar>
+			</div>
 		</div>
 	</div>
 </template>
@@ -66,6 +65,7 @@
 <script>
 import axios from 'axios'
 
+import MenusTable from '../components/MenusTable'
 import Recorder from '../components/Recorder'
 import Receipt from '../components/Receipt'
 
@@ -74,6 +74,7 @@ const endpoint = process.env.VUE_APP_API_ENDPOINT
 
 export default {
 	components: {
+		myMenusTable: MenusTable,
 		myRecorder: Recorder,
 		myReceipt: Receipt
 	},
@@ -81,9 +82,7 @@ export default {
 	data: function() {
 		return {
 			user: {},
-			menus: [],
 			menuGroups: [],
-			menuViews: [],
 			conversation: {
 				id: null,
 				success: false,
@@ -92,8 +91,10 @@ export default {
 				isWaiting: false,
 				isRecording: false
 			},
+			transcript: '',
 			dialog: false,
-			dialogData: {}
+			dialogData: {},
+			isPlayingExplain: false
 		}
 	},
 	async mounted() {
@@ -103,40 +104,52 @@ export default {
 		let res = await axios.get(endpoint + '/api/user', { params: { id: this.id } })
 		this.user = res.data
 
-		// Get all menus and menuGroups by userId
-		res = await axios.get(endpoint + '/api/menu/by-user', { params: { userId: this.id } })
-		this.menus = res.data
+		// Get all menuGroups by userId
 		res = await axios.get(endpoint + '/api/menu/group/by-user', { params: { userId: this.id } })
 		this.menuGroups = res.data
 
-		this.createMenuView()
+		// Set the menus explanation voice file url
+		this.$refs['audio-explain'].src = gcsUrl + 'explain-menus-' + this.user.name + '.wav'
 
 		loading.close()
 	},
 	methods: {
-		createMenuView() {
-			let group, menu
-			for (group of this.menuGroups) {
-				group.class = 'my-header'
-				this.menuViews.push(group)
-				for (menu of this.menus) {
-					if (menu.groupId === group._id) {
-						this.menuViews.push(menu)
-					}
-				}
-			}
-		},
 		async handleClick() {
+			this.stopExplanation()
+
 			if (!this.conversation.id) {
 				this.startConversation()
 			}
 		},
+		// Play the menus explanation voice
+		playExplanation() {
+			if (!this.isPlayingExplain && !this.conversation.isWriting) {
+				// Play the voice
+				this.isPlayingExplain = true
+				this.$refs['audio-explain'].play()
+			} else {
+				// Now playing. stop the voice
+				this.stopExplanation()
+			}
+		},
+		// Stop the menus explanation voice
+		stopExplanation() {
+			this.isPlayingExplain = false
+			this.$refs['audio-explain'].pause()
+			this.$refs['audio-explain'].currentTime = 0
+		},
+		// Reset the menus explanation voice state after finish playing
+		resetExplanation() {
+			this.isPlayingExplain = false
+			this.$refs['audio-explain'].currentTime = 0
+		},
 		async startConversation() {
 			// Start a conversation with the bot
 			this.conversation.isWaiting = true
-			console.log('Start conversation')
 			// Send the start request to the server
-			const res = await axios.get(endpoint + '/api/conversation/start', { params: { userId: this.id } })
+			const res = await axios.get(endpoint + '/api/conversation/start', {
+				params: { userId: this.id }
+			})
 			this.conversation.id = res.data.id
 			this.updateConvData(res.data)
 
@@ -168,21 +181,22 @@ export default {
 			this.conversation.isWaiting = true
 
 			// Send the proceed request to the server
-			const res = await axios.post(endpoint + '/api/conversation/proceed', { convId: this.conversation.id })
-			console.log('got response')
-			console.log(res.data)
+			const res = await axios.post(endpoint + '/api/conversation/proceed', {
+				convId: this.conversation.id
+			})
 			this.conversation.success = res.data.success
 			this.conversation.hasFinished = res.data.hasFinished
+			this.transcript = res.data.transcript
 
 			// Check if the conversation has finished
 			if (this.conversation.hasFinished == true) {
 				// Conversation Finished
 				// Show the order info with notification
-				console.log('FINISHED')
 				this.conversation.order = res.data.order
-				console.log(this.conversation.order)
 			}
 			this.conversation.isWaiting = false
+
+			// Show the recognized transcript
 
 			// Play the bot voice from the response
 			this.conversation.isWriting = true
@@ -191,10 +205,18 @@ export default {
 		},
 		handleAfterFinish() {
 			// Open notification
-			this.dialogData = this.conversation
+			this.dialogData = this.conversation.order
 			this.dialog = true
 
-			this.resetConversation()
+			// Delete the voice file from GCS
+			axios
+				.delete(endpoint + '/api/conversation/voice', { params: { convId: this.conversation.id } })
+				.then((res) => {
+					this.resetConversation()
+				})
+				.catch((err) => {
+					this.resetConversation()
+				})
 		},
 		createReceiptScript() {
 			const content = {}
@@ -218,40 +240,56 @@ export default {
 				isWaiting: false,
 				isRecording: false
 			}
-		},
-		playAudio() {}
+		}
 	}
 }
 </script>
-<style>
-body {
-	background: rgba(var(--vs-gray-2), 1);
-}
-.container {
-	background-color: white;
-	border-radius: 1rem;
-	padding: 1rem;
-}
-h1,
-h2 {
-	font-family: 'Jua';
-	font-weight: normal;
-}
+<style scoped>
 h1 {
 	font-size: 3rem;
 }
-.vs-avatar {
+
+.container {
+	margin-bottom: 1.5rem;
+}
+
+.my-description-text {
+	margin: 0.5rem 0;
+}
+
+.my-bot-avatar {
 	cursor: pointer;
 	margin-top: 0.5rem;
 }
-.vs-avatar i {
+
+.my-bot-avatar i {
 	font-size: 4rem !important;
 }
-.my-header {
-	background-color: rgba(var(--vs-gray-2), 1);
-	font-weight: bold;
+
+.my-transcript {
+	cursor: pointer;
+	margin-bottom: 0.5rem;
+	max-width: 250px;
 }
-div.bottom-intent {
-	height: 100px;
+
+.bottomRight {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+@media (min-width: 900px) {
+	.my-menu-col {
+		padding: 0 0.5rem;
+	}
+
+	br {
+		display: none;
+	}
+}
+</style>
+<style>
+.my-dialog .vs-dialog__content.notFooter {
+	margin-bottom: 0;
 }
 </style>
