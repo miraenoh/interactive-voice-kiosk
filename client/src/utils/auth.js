@@ -8,6 +8,7 @@ const endpoint = process.env.VUE_APP_API_ENDPOINT
 export async function getAuth() {
 	try {
 		const res = await axios.get(endpoint + '/api/user/auth', { withCredentials: true })
+		console.log(res.data)
 		store.state.adminUser.id = res.data.userId
 		store.state.adminUser.name = res.data.name
 		store.state.adminUser.storeName = res.data.storeName
