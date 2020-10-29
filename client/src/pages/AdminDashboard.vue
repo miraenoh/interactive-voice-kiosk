@@ -1,7 +1,27 @@
 <template>
 	<vs-row class="my-page" justify="center">
 		<vs-col w="9" sm="11" xs="12">
-			<h1>{{ storeName }} DASHBOARD</h1>
+			<!-- Dashboard header -->
+			<vs-row align="center">
+				<h1>{{ storeName }} DASHBOARD</h1>
+				<!-- Open control button -->
+				<vs-tooltip class="my-open-button" v-if="!isOpen">
+					<vs-button icon flat :active="true" circle success @click="toggleIsOpen">
+						<i class="bx bx-play" />
+					</vs-button>
+					<template #tooltip>
+						영업 시작
+					</template>
+				</vs-tooltip>
+				<vs-tooltip class="my-open-button" v-else>
+					<vs-button icon flat :active="true" circle danger @click="toggleIsOpen">
+						<i class="bx bx-stop" />
+					</vs-button>
+					<template #tooltip>
+						영업 종료
+					</template>
+				</vs-tooltip>
+			</vs-row>
 			<vs-row>
 				<vs-col w="6" xs="12">
 					<!-- Incomplete orders widget -->
@@ -154,6 +174,9 @@ export default {
 	computed: {
 		storeName() {
 			return this.$store.state.adminUser.storeName
+		},
+		isOpen() {
+			return this.$store.state.adminUser.isOpen
 		}
 	},
 	methods: {
@@ -313,7 +336,19 @@ export default {
 				})
 				.catch((err) => {
 					loading.close()
+					console.error(err)
 					alert('메뉴설명 음성 업데이트중 오류가 발생했습니다.')
+				})
+		},
+		toggleIsOpen() {
+			axios
+				.post(endpoint + '/api/user/isopen', {}, { withCredentials: true })
+				.then((res) => {
+					this.$store.state.adminUser.isOpen = res.data.isOpen
+				})
+				.catch((err) => {
+					console.error(err)
+					alert('오픈여부 변경중 오류가 발생했습니다.')
 				})
 		}
 	},
@@ -357,6 +392,10 @@ export default {
 .my-button-row {
 	display: flex;
 	flex-direction: row;
+}
+
+.my-open-button {
+	margin-left: 1rem;
 }
 
 @media (max-width: 900px) {

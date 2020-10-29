@@ -69,10 +69,18 @@ router.post('/login', (req, res) => {
 					userId: user._id,
 					name: user.name,
 					storeName: user.storeName,
+					isOpen: user.isOpen,
 					x_auth: user.token
 				})
 			})
 		})
+	})
+})
+
+// Toggle the user's isOpen prop
+router.post('/isopen', auth, (req, res) => {
+	User.updateOne({ _id: req.user._id }, { isOpen: !req.user.isOpen }, (err, raw) => {
+		return handlerService.responseDataHandler(res, err, { isOpen: !req.user.isOpen })
 	})
 })
 
@@ -81,7 +89,8 @@ router.get('/auth', auth, (req, res) => {
 		_id: req.user._id,
 		isAuth: true,
 		name: req.user.name,
-		storeName: req.user.storeName
+		storeName: req.user.storeName,
+		isOpen: req.user.isOpen
 	})
 })
 
@@ -93,9 +102,13 @@ router.get('/logout', auth, (req, res) => {
 
 // Get userInfo by username
 router.get('/', (req, res) => {
-	User.findOne({ name: req.query.id }, { _id: 0, name: 1, storeName: 1 }, (err, user) => {
-		return handlerService.responseDataHandler(res, err, user)
-	})
+	User.findOne(
+		{ name: req.query.id },
+		{ _id: 0, name: 1, storeName: 1, isOpen: 1 },
+		(err, user) => {
+			return handlerService.responseDataHandler(res, err, user)
+		}
+	)
 })
 
 module.exports = router

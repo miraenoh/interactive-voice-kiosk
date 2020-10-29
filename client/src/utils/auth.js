@@ -8,7 +8,10 @@ const endpoint = process.env.VUE_APP_API_ENDPOINT
 export async function getAuth() {
 	try {
 		const res = await axios.get(endpoint + '/api/user/auth', { withCredentials: true })
-
+		store.state.adminUser.id = res.data.userId
+		store.state.adminUser.name = res.data.name
+		store.state.adminUser.storeName = res.data.storeName
+		store.state.adminUser.isOpen = res.data.isOpen
 		return res.data
 	} catch (err) {
 		console.error(err)
@@ -29,6 +32,7 @@ export async function login(username, password) {
 			store.state.adminUser.id = res.data.userId
 			store.state.adminUser.name = res.data.name
 			store.state.adminUser.storeName = res.data.storeName
+			store.state.adminUser.isOpen = res.data.isOpen
 
 			return { success: true }
 		} else {

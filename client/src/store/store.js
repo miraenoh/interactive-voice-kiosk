@@ -9,6 +9,7 @@ export const store = new Vuex.Store({
             id: undefined,
             name: undefined,
             storeName: undefined,
+            isOpen: false
         }
     }
 })

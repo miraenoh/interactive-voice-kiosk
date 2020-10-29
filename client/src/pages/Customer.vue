@@ -7,7 +7,7 @@
 				<h1 class="center">
 					{{ user.storeName }}
 				</h1>
-				<vs-row class="container">
+				<vs-row class="container" v-if="user.isOpen">
 					<vs-row class="my-description-text center" justify="center">
 						메뉴를 고른 뒤 버튼을 눌러 주문하세요.<br />
 						화면 더블클릭시 메뉴 설명이 재생·정지됩니다.
@@ -22,12 +22,15 @@
 						<my-menus-table :menuGroup="menuGroup" :isAdmin="false" class="my-small-card" />
 					</vs-col>
 				</vs-row>
+				<vs-row class="container" justify="center" v-else>
+					현재 영업 종료 상태입니다.
+				</vs-row>
 			</vs-col>
 		</vs-row>
 		<vs-dialog class="my-dialog" v-model="dialog">
 			<my-receipt :order="dialogData" />
 		</vs-dialog>
-		<div class="bottomRight">
+		<div class="bottomRight" v-if="user.isOpen">
 			<div
 				v-if="transcript && transcript.length"
 				class="my-transcript container my-small-card"
